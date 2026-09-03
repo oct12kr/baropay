@@ -1,0 +1,84 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css");
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #111827;
+
+  --color-primary-blue: #2878f0;
+  --color-primary-blue-dark: #1f63cc;
+  --color-deep-navy: #071e3d;
+  --color-navy: #0a2a52;
+  --color-navy-2: #071f42;
+  --color-light-blue: #edf5ff;
+  --color-kakao: #fee500;
+  --color-kakao-text: #191919;
+  --color-text: #111827;
+  --color-gray-text: #667085;
+  --color-border: #e7ebf1;
+  --color-section-1: #f7faff;
+  --color-section-2: #f3f7fc;
+  --color-card: #fafbfd;
+  --color-card-border: #edf0f5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary-blue: var(--color-primary-blue);
+  --color-primary-blue-dark: var(--color-primary-blue-dark);
+  --color-deep-navy: var(--color-deep-navy);
+  --color-navy: var(--color-navy);
+  --color-navy-2: var(--color-navy-2);
+  --color-light-blue: var(--color-light-blue);
+  --color-kakao: var(--color-kakao);
+  --color-kakao-text: var(--color-kakao-text);
+  --color-text: var(--color-text);
+  --color-gray-text: var(--color-gray-text);
+  --color-border: var(--color-border);
+  --color-section-1: var(--color-section-1);
+  --color-section-2: var(--color-section-2);
+  --color-card: var(--color-card);
+  --color-card-border: var(--color-card-border);
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s ease both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease both;
+}
