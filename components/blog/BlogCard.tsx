@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { BLOG_PLACEHOLDER_IMAGE } from "@/lib/wordpress";
 import type { BlogPost } from "@/types/wordpress";
 
 interface BlogCardProps {
   post: BlogPost;
+  href?: string;
 }
 
 function formatDate(dateString: string) {
@@ -12,10 +14,10 @@ function formatDate(dateString: string) {
   return date.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
 }
 
-export default function BlogCard({ post }: BlogCardProps) {
+export default function BlogCard({ post, href }: BlogCardProps) {
   return (
     <Link
-      href={`/blog/${post.slug}`}
+      href={href ?? `/blog/${post.slug}`}
       className="group flex flex-col overflow-hidden rounded-[20px] border border-border bg-white transition-all duration-250 hover:-translate-y-[3px] hover:shadow-[0_20px_40px_-16px_rgba(7,30,61,0.18)]"
     >
       <div className="relative aspect-video w-full overflow-hidden bg-light-blue">
@@ -34,7 +36,13 @@ export default function BlogCard({ post }: BlogCardProps) {
             {post.excerpt}
           </p>
         ) : null}
-        <p className="text-xs text-gray-text">{formatDate(post.date)}</p>
+        <div className="flex items-center justify-between pt-1">
+          <p className="text-xs text-gray-text">{formatDate(post.date)}</p>
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary-blue opacity-0 transition-opacity duration-250 group-hover:opacity-100">
+            자세히 보기
+            <ArrowRight className="h-3 w-3" />
+          </span>
+        </div>
       </div>
     </Link>
   );

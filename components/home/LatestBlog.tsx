@@ -3,9 +3,16 @@ import { ArrowRight } from "lucide-react";
 import Container from "@/components/common/Container";
 import BlogList from "@/components/blog/BlogList";
 import { getLatestPosts } from "@/lib/wordpress";
+import { mockBlogPosts } from "@/data/mockBlogPosts";
+
+const MAIN_BLOG_COUNT = 16;
 
 export default async function LatestBlog() {
-  const posts = await getLatestPosts(16);
+  const realPosts = await getLatestPosts(MAIN_BLOG_COUNT);
+  // WordPress currently has far fewer than 16 published posts, so fall back
+  // to mock cards for the design preview until real content catches up.
+  const usingMock = realPosts.length < MAIN_BLOG_COUNT;
+  const posts = usingMock ? mockBlogPosts.slice(0, MAIN_BLOG_COUNT) : realPosts;
 
   return (
     <section id="blog" className="bg-white py-20 md:py-28">
@@ -30,7 +37,7 @@ export default async function LatestBlog() {
           </Link>
         </div>
 
-        <BlogList posts={posts} columns={4} />
+        <BlogList posts={posts} columns={4} linkOverride={usingMock ? "/blog" : undefined} />
       </Container>
     </section>
   );
