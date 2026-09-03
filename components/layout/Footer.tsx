@@ -1,17 +1,18 @@
+import Link from "next/link";
 import Container from "@/components/common/Container";
 import Logo from "@/components/common/Logo";
 import { siteConfig } from "@/config/site";
 
 const serviceLinks = [
-  { label: "소액결제 상담", href: "#services" },
-  { label: "정보이용료 상담", href: "#services" },
-  { label: "이용방법", href: "#process" },
+  { label: "소액결제 상담", href: "/#services" },
+  { label: "정보이용료 상담", href: "/#services" },
+  { label: "이용방법", href: "/#process" },
 ];
 
 const supportLinks = [
-  { label: "자주묻는질문", href: "#faq" },
-  { label: "이용후기", href: "#reviews" },
-  { label: "고객센터", href: "#footer" },
+  { label: "자주묻는질문", href: "/#faq" },
+  { label: "이용후기", href: "/#reviews" },
+  { label: "고객센터", href: "/#footer" },
   { label: "공지사항", href: "#" },
 ];
 
@@ -42,9 +43,9 @@ export default function Footer() {
           <ul className="flex flex-col gap-3 text-sm text-white/60">
             {serviceLinks.map((link) => (
               <li key={link.label}>
-                <a href={link.href} className="hover:text-white">
+                <Link href={link.href} className="hover:text-white">
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -53,9 +54,9 @@ export default function Footer() {
           <ul className="flex flex-col gap-3 text-sm text-white/60">
             {supportLinks.map((link) => (
               <li key={link.label}>
-                <a href={link.href} className="hover:text-white">
+                <Link href={link.href} className="hover:text-white">
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

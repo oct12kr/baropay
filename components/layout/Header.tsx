@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import Container from "@/components/common/Container";
 import Logo from "@/components/common/Logo";
@@ -34,19 +35,19 @@ export default function Header() {
       }`}
     >
       <Container className="flex h-[68px] items-center justify-between md:h-[76px]">
-        <a href="#top" className="shrink-0">
+        <Link href="/#top" className="shrink-0">
           <Logo />
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
           {navigation.map((item) => (
-            <a
+            <Link
               key={item.label}
               href={item.href}
               className="text-[15px] font-medium text-text/80 transition-colors hover:text-primary-blue"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -68,14 +69,14 @@ export default function Header() {
         <div className="border-t border-border bg-white px-5 py-6 lg:hidden">
           <nav className="flex flex-col gap-1">
             {navigation.map((item) => (
-              <a
+              <Link
                 key={item.label}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
                 className="rounded-lg px-3 py-3 text-[15px] font-medium text-text/85 transition-colors hover:bg-section-1 hover:text-primary-blue"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
           <KakaoButton full className="mt-4" />
