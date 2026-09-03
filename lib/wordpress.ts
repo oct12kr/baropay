@@ -1,51 +1,16 @@
-const WORDPRESS_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL;
-const WORDPRESS_API_URL = process.env.WORDPRESS_API_URL;
+import "server-only";
+import type { BlogPost, PaginatedPosts, WordPressPost } from "@/types/wordpress";
+
+const WORDPRESS_URL = process.env.WORDPRESS_URL?.replace(/\/+$/, "");
 const WORDPRESS_USERNAME = process.env.WORDPRESS_USERNAME;
 const WORDPRESS_APP_PASSWORD = process.env.WORDPRESS_APP_PASSWORD;
 
-export const isWordpressConfigured = Boolean(WORDPRESS_API_URL);
+const API_BASE = WORDPRESS_URL ? `${WORDPRESS_URL}/wp-json/wp/v2` : null;
 
-export interface BlogPost {
-  id: number;
-  slug: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  date: string;
-  category?: string;
-  featuredImage?: string;
-}
+export const isWordpressConfigured = Boolean(API_BASE);
+export const BLOG_PLACEHOLDER_IMAGE = "/images/blog-placeholder.svg";
 
-export interface BlogCategory {
-  id: number;
-  slug: string;
-  name: string;
-}
-
-interface WPRenderedField {
-  rendered: string;
-}
-
-interface WPEmbedded {
-  "wp:featuredmedia"?: { source_url?: string }[];
-  "wp:term"?: { id: number; name: string; taxonomy: string }[][];
-}
-
-interface WPPost {
-  id: number;
-  slug: string;
-  date: string;
-  title: WPRenderedField;
-  excerpt: WPRenderedField;
-  content: WPRenderedField;
-  _embedded?: WPEmbedded;
-}
-
-interface WPCategory {
-  id: number;
-  slug: string;
-  name: string;
-}
+const REVALIDATE_SECONDS = 300;
 
 function getAuthHeaders(): HeadersInit | undefined {
   if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) return undefined;
@@ -55,11 +20,11 @@ function getAuthHeaders(): HeadersInit | undefined {
   return { Authorization: `Basic ${token}` };
 }
 
-function mapPost(post: WPPost): BlogPost {
-  const category = post._embedded?.["wp:term"]?.[0]?.find(
-    (term) => term.taxonomy === "category"
-  );
+export function getFeaturedImage(post: WordPressPost): string | null {
+  return post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
+}
 
+function mapPost(post: WordPressPost): BlogPost {
   return {
     id: post.id,
     slug: post.slug,
@@ -67,65 +32,65 @@ function mapPost(post: WPPost): BlogPost {
     excerpt: post.excerpt.rendered.replace(/<[^>]+>/g, "").trim(),
     content: post.content.rendered,
     date: post.date,
-    category: category?.name,
-    featuredImage: post._embedded?.["wp:featuredmedia"]?.[0]?.source_url,
+    featuredImage: getFeaturedImage(post),
   };
 }
 
-/**
- * WordPress REST API endpoints this connects to once WORDPRESS_API_URL is set:
- *  - `${WORDPRESS_API_URL}/posts`
- *  - `${WORDPRESS_API_URL}/categories`
- *  - `${WORDPRESS_API_URL}/media`
- */
-export async function fetchPosts(): Promise<BlogPost[]> {
-  if (!WORDPRESS_API_URL) return [];
+async function wpFetch(path: string): Promise<Response | null> {
+  if (!API_BASE) return null;
 
   try {
-    const res = await fetch(`${WORDPRESS_API_URL}/posts?_embed&per_page=12`, {
+    return await fetch(`${API_BASE}${path}`, {
       headers: getAuthHeaders(),
-      next: { revalidate: 300 },
+      next: { revalidate: REVALIDATE_SECONDS },
     });
-    if (!res.ok) return [];
-    const posts = (await res.json()) as WPPost[];
-    return posts.map(mapPost);
-  } catch {
-    return [];
-  }
-}
-
-export async function fetchPostBySlug(slug: string): Promise<BlogPost | null> {
-  if (!WORDPRESS_API_URL) return null;
-
-  try {
-    const res = await fetch(`${WORDPRESS_API_URL}/posts?slug=${encodeURIComponent(slug)}&_embed`, {
-      headers: getAuthHeaders(),
-      next: { revalidate: 300 },
-    });
-    if (!res.ok) return null;
-    const posts = (await res.json()) as WPPost[];
-    return posts[0] ? mapPost(posts[0]) : null;
   } catch {
     return null;
   }
 }
 
-export async function fetchCategories(): Promise<BlogCategory[]> {
-  if (!WORDPRESS_API_URL) return [];
+/** Latest N published posts, newest first. Used on the homepage. */
+export async function getLatestPosts(limit = 16): Promise<BlogPost[]> {
+  const res = await wpFetch(`/posts?_embed&per_page=${limit}&orderby=date&order=desc`);
+  if (!res || !res.ok) return [];
 
-  try {
-    const res = await fetch(`${WORDPRESS_API_URL}/categories?per_page=20`, {
-      headers: getAuthHeaders(),
-      next: { revalidate: 300 },
-    });
-    if (!res.ok) return [];
-    const categories = (await res.json()) as WPCategory[];
-    return categories
-      .filter((c) => c.name.toLowerCase() !== "uncategorized")
-      .map((c) => ({ id: c.id, slug: c.slug, name: c.name }));
-  } catch {
-    return [];
-  }
+  const posts = (await res.json()) as WordPressPost[];
+  return posts.map(mapPost);
 }
 
-export const wordpressSiteUrl = WORDPRESS_URL;
+/** Paginated post list for /blog. */
+export async function getPosts(page = 1, perPage = 16): Promise<PaginatedPosts> {
+  const res = await wpFetch(
+    `/posts?_embed&per_page=${perPage}&page=${page}&orderby=date&order=desc`
+  );
+
+  if (!res || !res.ok) {
+    return { posts: [], total: 0, totalPages: 0, page };
+  }
+
+  const posts = (await res.json()) as WordPressPost[];
+  const total = Number(res.headers.get("X-WP-Total") ?? posts.length);
+  const totalPages = Number(res.headers.get("X-WP-TotalPages") ?? 1);
+
+  return { posts: posts.map(mapPost), total, totalPages, page };
+}
+
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  const res = await wpFetch(`/posts?slug=${encodeURIComponent(slug)}&_embed`);
+  if (!res || !res.ok) return null;
+
+  const posts = (await res.json()) as WordPressPost[];
+  return posts[0] ? mapPost(posts[0]) : null;
+}
+
+/** Latest posts excluding the one currently being read (single-category site, so no category filter needed). */
+export async function getRelatedPosts(excludeId: number, limit = 4): Promise<BlogPost[]> {
+  const res = await wpFetch(`/posts?_embed&per_page=${limit + 1}&orderby=date&order=desc`);
+  if (!res || !res.ok) return [];
+
+  const posts = (await res.json()) as WordPressPost[];
+  return posts
+    .filter((post) => post.id !== excludeId)
+    .slice(0, limit)
+    .map(mapPost);
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <rect width="640" height="360" fill="#EDF5FF" />
+  <rect x="264" y="130" width="56" height="56" rx="14" fill="#2878F0" />
+  <text x="292" y="167" font-family="Pretendard, -apple-system, sans-serif" font-size="28" font-weight="800" fill="#ffffff" text-anchor="middle">B</text>
+  <text x="320" y="228" font-family="Pretendard, -apple-system, sans-serif" font-size="20" font-weight="700" fill="#2878F0" text-anchor="middle">바로페이 블로그</text>
+</svg>

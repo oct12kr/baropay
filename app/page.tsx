@@ -7,6 +7,7 @@ import Process from "@/components/home/Process";
 import Reviews from "@/components/home/Reviews";
 import WhyBaropay from "@/components/home/WhyBaropay";
 import FAQ from "@/components/home/FAQ";
+import LatestBlog from "@/components/home/LatestBlog";
 import BottomCTA from "@/components/home/BottomCTA";
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
         <Reviews />
         <WhyBaropay />
         <FAQ />
+        <LatestBlog />
         <BottomCTA />
       </main>
       <Footer />
