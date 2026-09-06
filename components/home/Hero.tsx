@@ -39,11 +39,23 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden bg-white py-14 md:py-16 lg:flex lg:min-h-[620px] lg:items-center lg:py-20"
+      className="relative overflow-hidden bg-[linear-gradient(120deg,#FCFDFF_0%,#EFF7FF_45%,#F5F1FF_100%)] py-14 md:py-16 lg:flex lg:min-h-[620px] lg:items-center lg:py-20"
     >
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-section-1 to-white" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute right-[-80px] top-[2%] h-[260px] w-[260px] rounded-full bg-[#CDEBFF] opacity-20 blur-3xl sm:h-[340px] sm:w-[340px] md:right-[4%] md:h-[420px] md:w-[420px] md:opacity-30 lg:right-[8%] lg:top-[-4%] lg:h-[480px] lg:w-[480px] lg:opacity-35" />
+        <div className="absolute bottom-[-60px] right-[-40px] h-[220px] w-[220px] rounded-full bg-[#E9E4FF] opacity-20 blur-3xl sm:h-[280px] sm:w-[280px] md:bottom-[-70px] md:right-[6%] md:h-[340px] md:w-[340px] md:opacity-25 lg:right-[10%] lg:h-[400px] lg:w-[400px] lg:opacity-30" />
+        <div className="absolute bottom-[-40px] left-[-70px] h-[220px] w-[220px] rounded-full bg-[radial-gradient(circle,rgba(220,235,255,0.45),transparent_70%)] md:h-[300px] md:w-[300px]" />
+        <div
+          className="absolute bottom-0 right-0 hidden h-[240px] w-[300px] md:block"
+          style={{
+            backgroundImage: "radial-gradient(rgba(40,120,240,0.08) 1px, transparent 1px)",
+            backgroundSize: "14px 14px",
+          }}
+        />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-white" />
+      </div>
 
-      <Container className="relative grid items-center gap-14 lg:grid-cols-2 lg:gap-10">
+      <Container className="relative z-10 grid items-center gap-14 lg:grid-cols-2 lg:gap-10">
         <div className="flex flex-col items-start gap-6 animate-fade-up">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-light-blue px-4 py-2 text-[13px] font-bold text-primary-blue">
             24시간 빠르고 안전한 비상금 해결
