@@ -1,13 +1,14 @@
-import { CheckCircle2, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import Container from "@/components/common/Container";
 import KakaoButton from "@/components/common/KakaoButton";
 import PhoneButton from "@/components/common/PhoneButton";
 import Logo from "@/components/common/Logo";
 
-const features = [
-  { icon: Sparkles, label: "최고 지급률 보장" },
-  { icon: Zap, label: "빠른 상담 및 처리" },
-  { icon: ShieldCheck, label: "안전한 거래" },
+const highlights = [
+  "언제 어디서나 상담 가능",
+  "몇 단계만으로 간편한 진행",
+  "진행 과정 친절하게 안내",
+  "빠르고 정확한 상담 서비스",
 ];
 
 const rates = [
@@ -36,19 +37,11 @@ export default function Hero() {
             <span className="text-primary-blue">바로페이</span>
           </h1>
 
-          <p className="text-[17px] leading-relaxed text-gray-text md:text-xl">
-            소액결제 · 정보이용료를
-            <br />
-            빠르고 간편하게 상담하세요.
-          </p>
-
-          <div className="flex flex-wrap gap-x-6 gap-y-3 pt-1">
-            {features.map((feature) => (
-              <div key={feature.label} className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-light-blue text-primary-blue">
-                  <feature.icon className="h-4 w-4" strokeWidth={2.4} />
-                </span>
-                <span className="text-sm font-semibold text-text/85">{feature.label}</span>
+          <div className="flex flex-col gap-3 pt-1">
+            {highlights.map((item) => (
+              <div key={item} className="flex items-center gap-2.5">
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-primary-blue" strokeWidth={2.4} />
+                <span className="text-[15px] font-semibold text-text/85 md:text-base">{item}</span>
               </div>
             ))}
           </div>
