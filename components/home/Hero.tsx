@@ -39,19 +39,47 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden bg-[linear-gradient(120deg,#FCFDFF_0%,#EFF7FF_45%,#F5F1FF_100%)] py-14 md:py-16 lg:flex lg:min-h-[620px] lg:items-center lg:py-20"
+      className="relative overflow-hidden py-14 md:py-16 lg:flex lg:min-h-[620px] lg:items-center lg:py-20"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute right-[-80px] top-[2%] h-[260px] w-[260px] rounded-full bg-[#CDEBFF] opacity-20 blur-3xl sm:h-[340px] sm:w-[340px] md:right-[4%] md:h-[420px] md:w-[420px] md:opacity-30 lg:right-[8%] lg:top-[-4%] lg:h-[480px] lg:w-[480px] lg:opacity-35" />
-        <div className="absolute bottom-[-60px] right-[-40px] h-[220px] w-[220px] rounded-full bg-[#E9E4FF] opacity-20 blur-3xl sm:h-[280px] sm:w-[280px] md:bottom-[-70px] md:right-[6%] md:h-[340px] md:w-[340px] md:opacity-25 lg:right-[10%] lg:h-[400px] lg:w-[400px] lg:opacity-30" />
-        <div className="absolute bottom-[-40px] left-[-70px] h-[220px] w-[220px] rounded-full bg-[radial-gradient(circle,rgba(220,235,255,0.45),transparent_70%)] md:h-[300px] md:w-[300px]" />
+        {/* base tint layer: linear gradient + soft radial color washes */}
         <div
-          className="absolute bottom-0 right-0 hidden h-[240px] w-[300px] md:block"
+          className="absolute inset-0"
           style={{
-            backgroundImage: "radial-gradient(rgba(40,120,240,0.08) 1px, transparent 1px)",
-            backgroundSize: "14px 14px",
+            backgroundImage: `
+              linear-gradient(135deg, #FFFFFF 0%, #F3F9FF 35%, #EEF7FF 60%, #F7F2FF 100%),
+              radial-gradient(circle at 75% 30%, rgba(170,220,255,0.35), transparent 34%),
+              radial-gradient(circle at 88% 65%, rgba(198,190,255,0.32), transparent 32%),
+              radial-gradient(circle at 15% 85%, rgba(255,210,238,0.20), transparent 35%)
+            `,
           }}
         />
+
+        {/* anchored to the same max-width as the content container so circles stay aligned with the phone on ultra-wide screens */}
+        <div className="relative mx-auto h-full w-full max-w-[1280px]">
+          {/* right-side pastel circle 1: blue */}
+          <div className="absolute right-[10px] top-[30px] h-[220px] w-[220px] rounded-full bg-[rgba(160,215,255,0.32)] blur-md sm:right-[60px] sm:h-[300px] sm:w-[300px] md:right-[70px] md:top-[60px] md:h-[400px] md:w-[400px] lg:right-[40px] lg:top-[80px] lg:h-[480px] lg:w-[480px]" />
+
+          {/* right-side pastel circle 2: lavender, overlapping circle 1 */}
+          <div className="absolute bottom-[10px] right-[-30px] h-[200px] w-[200px] rounded-full bg-[rgba(190,175,255,0.28)] blur-md sm:right-[10px] sm:h-[280px] sm:w-[280px] md:bottom-[35px] md:right-[-30px] md:h-[380px] md:w-[380px] lg:right-[-40px] lg:h-[480px] lg:w-[480px]" />
+
+          {/* bottom soft wave layers */}
+          <div className="absolute bottom-[-130px] left-[10%] hidden h-[220px] w-[750px] -rotate-[10deg] rounded-full bg-[linear-gradient(90deg,rgba(160,220,255,0.16),rgba(190,180,255,0.14))] sm:block sm:h-[260px] sm:w-[850px] md:left-[15%] md:h-[300px] md:w-[950px] lg:left-[10%] lg:h-[360px] lg:w-[1100px] lg:-rotate-12" />
+          <div className="absolute bottom-[-160px] left-[5%] hidden h-[200px] w-[700px] rotate-[8deg] rounded-full bg-[linear-gradient(90deg,rgba(198,190,255,0.14),rgba(255,210,238,0.12))] md:block md:h-[260px] md:w-[900px] lg:left-[2%] lg:h-[300px] lg:w-[1000px] lg:rotate-[9deg]" />
+
+          {/* left-bottom pink/lavender glow */}
+          <div className="absolute bottom-[-100px] left-[-100px] h-[280px] w-[280px] rounded-full bg-[radial-gradient(circle,rgba(255,205,235,0.22),transparent_70%)] md:bottom-[-120px] md:left-[-80px] md:h-[420px] md:w-[420px] lg:left-[-60px] lg:h-[500px] lg:w-[500px]" />
+
+          {/* fine dot pattern accent */}
+          <div
+            className="absolute bottom-[80px] right-[40px] hidden h-[160px] w-[220px] opacity-60 md:block lg:bottom-[120px] lg:right-[10px]"
+            style={{
+              backgroundImage: "radial-gradient(rgba(40,120,240,0.12) 1.5px, transparent 1.5px)",
+              backgroundSize: "22px 22px",
+            }}
+          />
+        </div>
+
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-white" />
       </div>
 
