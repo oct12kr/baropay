@@ -17,6 +17,24 @@ const rates = [
   { label: "신용카드", value: "85%" },
 ];
 
+const limits = [
+  {
+    label: "휴대폰 소액결제 현금화",
+    desc: "SKT / KT / LG / 알뜰폰",
+    amount: "1,000,000원",
+  },
+  {
+    label: "정보·콘텐츠이용료 현금화",
+    desc: "구글 아이폰 / 게임·앱내결제",
+    amount: "1,000,000원",
+  },
+  {
+    label: "신용카드 현금화",
+    desc: "전 카드사 가능",
+    amount: "한도 무제한",
+  },
+];
+
 export default function Hero() {
   return (
     <section
@@ -53,17 +71,36 @@ export default function Hero() {
         </div>
 
         <div className="relative mx-auto flex justify-center pt-4 lg:pt-0">
-          <div className="relative h-[420px] w-[220px] shrink-0 rounded-[42px] border-[8px] border-[#1c1c1e] bg-[#1c1c1e] shadow-[0_30px_60px_-15px_rgba(7,30,61,0.35)] sm:h-[480px] sm:w-[248px] md:h-[520px] md:w-[268px]">
+          <div className="relative h-[560px] w-[224px] shrink-0 rounded-[42px] border-[8px] border-[#1c1c1e] bg-[#1c1c1e] shadow-[0_30px_60px_-15px_rgba(7,30,61,0.35)] sm:h-[620px] sm:w-[252px] md:h-[660px] md:w-[272px]">
             <div className="absolute left-1/2 top-0 z-10 h-5 w-24 -translate-x-1/2 rounded-b-2xl bg-[#1c1c1e]" />
 
             <div className="flex h-full w-full flex-col overflow-hidden rounded-[34px] bg-white">
-              <div className="flex flex-col items-center gap-1 pb-4 pt-9">
+              <div className="flex flex-col items-center gap-1 pb-3 pt-8">
                 <Logo className="scale-90" />
               </div>
 
-              <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6">
-                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-light-blue text-primary-blue">
-                  <CheckCircle2 className="h-9 w-9" strokeWidth={2} />
+              <div className="flex flex-col gap-2 px-4">
+                {limits.map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between gap-2 rounded-xl border border-card-border bg-card px-3 py-2.5"
+                  >
+                    <div className="min-w-0 text-left">
+                      <p className="text-[9.5px] leading-tight text-gray-text">{item.label}</p>
+                      <p className="mt-1 truncate text-[11.5px] font-bold leading-tight text-text">
+                        {item.desc}
+                      </p>
+                    </div>
+                    <p className="shrink-0 pl-1 text-[11.5px] font-extrabold leading-tight text-primary-blue">
+                      {item.amount}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 pb-6 pt-3">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-light-blue text-primary-blue">
+                  <CheckCircle2 className="h-8 w-8" strokeWidth={2} />
                 </span>
                 <p className="text-[15px] font-bold text-text">3분 입금 완료!</p>
 
