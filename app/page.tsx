@@ -2,7 +2,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Hero from "@/components/home/Hero";
 import TrustBar from "@/components/home/TrustBar";
-import Services from "@/components/home/Services";
+import PayoutComparison from "@/components/home/PayoutComparison";
 import Process from "@/components/home/Process";
 import Reviews from "@/components/home/Reviews";
 import WhyBaropay from "@/components/home/WhyBaropay";
@@ -17,7 +17,7 @@ export default function Home() {
       <main>
         <Hero />
         <TrustBar />
-        <Services />
+        <PayoutComparison />
         <Process />
         <Reviews />
         <WhyBaropay />
