@@ -39,7 +39,7 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden bg-white py-16 md:py-20 lg:flex lg:min-h-[680px] lg:items-center lg:py-24"
+      className="relative overflow-hidden bg-white py-14 md:py-16 lg:flex lg:min-h-[620px] lg:items-center lg:py-20"
     >
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-section-1 to-white" />
 
@@ -71,22 +71,22 @@ export default function Hero() {
         </div>
 
         <div className="relative mx-auto flex justify-center pt-4 lg:pt-0">
-          <div className="relative h-[560px] w-[224px] shrink-0 rounded-[42px] border-[8px] border-[#1c1c1e] bg-[#1c1c1e] shadow-[0_30px_60px_-15px_rgba(7,30,61,0.35)] sm:h-[620px] sm:w-[252px] md:h-[660px] md:w-[272px]">
+          <div className="relative h-[460px] w-[224px] shrink-0 rounded-[42px] border-[8px] border-[#1c1c1e] bg-[#1c1c1e] shadow-[0_30px_60px_-15px_rgba(7,30,61,0.35)] sm:h-[485px] sm:w-[248px] md:h-[500px] md:w-[264px]">
             <div className="absolute left-1/2 top-0 z-10 h-5 w-24 -translate-x-1/2 rounded-b-2xl bg-[#1c1c1e]" />
 
             <div className="flex h-full w-full flex-col overflow-hidden rounded-[34px] bg-white">
-              <div className="flex flex-col items-center gap-1 pb-3 pt-8">
+              <div className="flex flex-col items-center pb-[15px] pt-[18px]">
                 <Logo className="scale-90" />
               </div>
 
-              <div className="flex flex-col gap-2 px-4">
+              <div className="flex flex-col gap-[7px] px-4">
                 {limits.map((item) => (
                   <div
                     key={item.label}
-                    className="flex items-center justify-between gap-2 rounded-xl border border-card-border bg-card px-3 py-2.5"
+                    className="flex items-center justify-between gap-2 rounded-xl border border-card-border bg-card px-3 py-2"
                   >
                     <div className="min-w-0 text-left">
-                      <p className="text-[9.5px] leading-tight text-gray-text">{item.label}</p>
+                      <p className="truncate text-[9.5px] leading-tight text-gray-text">{item.label}</p>
                       <p className="mt-1 truncate text-[11.5px] font-bold leading-tight text-text">
                         {item.desc}
                       </p>
@@ -98,15 +98,15 @@ export default function Hero() {
                 ))}
               </div>
 
-              <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 pb-6 pt-3">
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-light-blue text-primary-blue">
-                  <CheckCircle2 className="h-8 w-8" strokeWidth={2} />
+              <div className="flex flex-col items-center px-6 pb-5 pt-5">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-light-blue text-primary-blue">
+                  <CheckCircle2 className="h-6 w-6" strokeWidth={2.2} />
                 </span>
-                <p className="text-[15px] font-bold text-text">3분 입금 완료!</p>
+                <p className="mt-2 text-[15px] font-bold text-text">3분 입금 완료!</p>
 
-                <div className="w-full rounded-2xl border border-border bg-section-1 p-4 text-center">
+                <div className="mt-[13px] w-full rounded-2xl border border-border bg-section-1 p-3.5 text-center">
                   <p className="text-xs font-medium text-gray-text">입금완료</p>
-                  <p className="mt-1 text-2xl font-extrabold text-navy">300,000원</p>
+                  <p className="mt-1 text-xl font-extrabold text-navy">300,000원</p>
                   <p className="mt-1 text-[11px] text-gray-text">2026.09.03 14:22</p>
                 </div>
               </div>
