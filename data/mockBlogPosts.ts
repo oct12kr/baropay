@@ -2,7 +2,7 @@ import type { BlogPost } from "@/types/wordpress";
 
 /**
  * Design-preview blog posts. Used only as a visual fallback when WordPress
- * has not published enough real posts yet — see components/home/LatestBlog.tsx
+ * has not published enough real posts yet — see components/home/Reviews.tsx
  * and app/blog/page.tsx for the switch-over logic. Never sent to WordPress.
  */
 

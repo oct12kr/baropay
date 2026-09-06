@@ -6,6 +6,7 @@ import type { BlogPost } from "@/types/wordpress";
 interface BlogCardProps {
   post: BlogPost;
   href?: string;
+  badge?: string;
 }
 
 function formatDate(dateString: string) {
@@ -14,13 +15,18 @@ function formatDate(dateString: string) {
   return date.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
 }
 
-export default function BlogCard({ post, href }: BlogCardProps) {
+export default function BlogCard({ post, href, badge }: BlogCardProps) {
   return (
     <Link
       href={href ?? `/blog/${post.slug}`}
       className="group flex flex-col overflow-hidden rounded-[20px] border border-border bg-white transition-all duration-250 hover:-translate-y-[3px] hover:shadow-[0_20px_40px_-16px_rgba(7,30,61,0.18)]"
     >
       <div className="relative aspect-video w-full overflow-hidden bg-light-blue">
+        {badge ? (
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-primary-blue shadow-sm backdrop-blur-sm">
+            {badge}
+          </span>
+        ) : null}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={post.featuredImage ?? BLOG_PLACEHOLDER_IMAGE}

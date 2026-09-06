@@ -1,41 +1,44 @@
-import { Star, User } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import Container from "@/components/common/Container";
 import SectionTitle from "@/components/common/SectionTitle";
-import { reviews } from "@/data/reviews";
+import BlogList from "@/components/blog/BlogList";
+import { getLatestPosts } from "@/lib/wordpress";
+import { mockBlogPosts } from "@/data/mockBlogPosts";
 
-export default function Reviews() {
+const MAIN_REVIEW_COUNT = 16;
+
+export default async function Reviews() {
+  const realPosts = await getLatestPosts(MAIN_REVIEW_COUNT);
+  // WordPress currently has far fewer than 16 published posts, so fall back
+  // to mock cards for the design preview until real content catches up.
+  const usingMock = realPosts.length < MAIN_REVIEW_COUNT;
+  const posts = usingMock ? mockBlogPosts.slice(0, MAIN_REVIEW_COUNT) : realPosts;
+
   return (
     <section id="reviews" className="bg-white py-20 md:py-28">
       <Container className="flex flex-col items-center gap-14">
-        <SectionTitle eyebrow="이용후기" title="실제 고객님들의 후기" />
+        <SectionTitle
+          eyebrow="이용후기"
+          title="실제 고객님들의 후기"
+          description="바로페이를 이용하신 고객님들의 실제 후기를 확인해보세요."
+        />
 
-        <div className="grid w-full gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {reviews.map((review) => (
-            <div
-              key={review.name + review.date}
-              className="flex flex-col gap-4 rounded-[20px] border border-card-border bg-card p-6"
-            >
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-light-blue text-primary-blue">
-                  <User className="h-5 w-5" strokeWidth={2} />
-                </span>
-                <div>
-                  <p className="text-sm font-bold text-text">{review.name}</p>
-                  <div className="mt-0.5 flex gap-0.5">
-                    {Array.from({ length: review.rating }).map((_, i) => (
-                      <Star key={i} className="h-3.5 w-3.5 fill-kakao text-kakao" />
-                    ))}
-                  </div>
-                </div>
-              </div>
+        <div className="flex w-full flex-col items-center gap-8">
+          <BlogList
+            posts={posts}
+            columns={4}
+            badge="이용후기"
+            linkOverride={usingMock ? "/blog" : undefined}
+          />
 
-              <p className="flex-1 text-[14px] leading-relaxed text-text/80">
-                {review.content}
-              </p>
-
-              <p className="text-xs text-gray-text">{review.date}</p>
-            </div>
-          ))}
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-primary-blue transition-colors hover:text-primary-blue-dark"
+          >
+            전체 후기 보기
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </Container>
     </section>

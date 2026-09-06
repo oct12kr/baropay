@@ -5,9 +5,10 @@ interface BlogListProps {
   posts: BlogPost[];
   columns?: 3 | 4;
   linkOverride?: string;
+  badge?: string;
 }
 
-export default function BlogList({ posts, columns = 4, linkOverride }: BlogListProps) {
+export default function BlogList({ posts, columns = 4, linkOverride, badge }: BlogListProps) {
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 rounded-[20px] border border-dashed border-border py-24 text-center">
@@ -22,7 +23,7 @@ export default function BlogList({ posts, columns = 4, linkOverride }: BlogListP
   return (
     <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2 ${gridCols}`}>
       {posts.map((post) => (
-        <BlogCard key={post.id} post={post} href={linkOverride} />
+        <BlogCard key={post.id} post={post} href={linkOverride} badge={badge} />
       ))}
     </div>
   );
