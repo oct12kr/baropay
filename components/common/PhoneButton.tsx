@@ -19,7 +19,7 @@ export default function PhoneButton({
 
   return (
     <a
-      href={siteConfig.phone ? `tel:${siteConfig.phone}` : "#"}
+      href={siteConfig.phoneHref || "#"}
       className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[15px] font-bold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 ${variantClass} ${
         full ? "w-full" : ""
       } ${className}`}

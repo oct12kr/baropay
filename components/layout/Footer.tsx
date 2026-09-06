@@ -66,7 +66,12 @@ export default function Footer() {
           <h3 className="mb-4 text-sm font-bold text-white">상담 문의</h3>
           <ul className="flex flex-col gap-2.5 text-sm text-white/60">
             <li>카카오톡: {siteConfig.name}</li>
-            <li>전화: {siteConfig.phoneDisplay}</li>
+            <li>
+              전화:{" "}
+              <a href={siteConfig.phoneHref} className="hover:text-white">
+                {siteConfig.phoneDisplay}
+              </a>
+            </li>
             <li>24시간 상담 가능</li>
           </ul>
         </div>
