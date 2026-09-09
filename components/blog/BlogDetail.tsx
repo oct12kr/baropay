@@ -11,7 +11,12 @@ interface BlogDetailProps {
 function formatDate(dateString: string) {
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
-  return date.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
+  return date.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "Asia/Seoul",
+  });
 }
 
 export default function BlogDetail({ post, relatedPosts }: BlogDetailProps) {
@@ -27,7 +32,7 @@ export default function BlogDetail({ post, relatedPosts }: BlogDetailProps) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={post.featuredImage ?? BLOG_PLACEHOLDER_IMAGE}
-        alt={post.title}
+        alt={post.featuredImageAlt ?? post.title}
         className="w-full rounded-[20px] object-cover"
       />
 

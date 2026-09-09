@@ -28,7 +28,9 @@ export interface WordPressPost {
   id: number;
   slug: string;
   date: string;
+  date_gmt: string;
   modified: string;
+  modified_gmt: string;
   title: WordPressRenderedField;
   excerpt: WordPressRenderedField;
   content: WordPressRenderedField;
@@ -46,6 +48,7 @@ export interface BlogPost {
   date: string;
   modified: string;
   featuredImage: string | null;
+  featuredImageAlt: string | null;
 }
 
 export interface PaginatedPosts {

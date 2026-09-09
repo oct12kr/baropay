@@ -24,16 +24,53 @@ export function getFeaturedImage(post: WordPressPost): string | null {
   return post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ?? null;
 }
 
+function getFeaturedImageAlt(post: WordPressPost): string | null {
+  const alt = post._embedded?.["wp:featuredmedia"]?.[0]?.alt_text;
+  return alt && alt.trim().length > 0 ? alt : null;
+}
+
+const NAMED_HTML_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  hellip: "…",
+  mdash: "—",
+  ndash: "–",
+  lsquo: "‘",
+  rsquo: "’",
+  ldquo: "“",
+  rdquo: "”",
+};
+
+/** Decodes WordPress's HTML-entity-encoded text (e.g. "&#8217;", "&amp;") into plain text, for use in <title>/<meta> where raw entities would otherwise render literally. */
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&([a-zA-Z]+);/g, (match, name: string) => NAMED_HTML_ENTITIES[name] ?? match);
+}
+
+/** WordPress's `date`/`modified` fields are site-local wall-clock time with no UTC offset, which
+ * JS parses as if it were UTC. Using `*_gmt` (already true UTC) instead keeps every downstream
+ * consumer — JSON-LD, sitemap lastmod, RSS pubDate — anchored to the correct instant. */
+function toIsoUtc(gmtDateString: string): string {
+  return `${gmtDateString}Z`;
+}
+
 function mapPost(post: WordPressPost): BlogPost {
   return {
     id: post.id,
     slug: post.slug,
-    title: post.title.rendered,
-    excerpt: post.excerpt.rendered.replace(/<[^>]+>/g, "").trim(),
+    title: decodeHtmlEntities(post.title.rendered),
+    excerpt: decodeHtmlEntities(post.excerpt.rendered.replace(/<[^>]+>/g, "").trim()),
     content: post.content.rendered,
-    date: post.date,
-    modified: post.modified ?? post.date,
+    date: toIsoUtc(post.date_gmt),
+    modified: toIsoUtc(post.modified_gmt || post.date_gmt),
     featuredImage: getFeaturedImage(post),
+    featuredImageAlt: getFeaturedImageAlt(post),
   };
 }
 
