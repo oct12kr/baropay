@@ -98,21 +98,20 @@ export default function Process() {
       <div className="relative z-10 mx-auto flex w-full max-w-[1400px] flex-col items-center px-6 md:px-8">
         <span className="inline-flex items-center gap-2 rounded-full bg-[rgba(225,243,255,0.9)] px-5 py-2.5 text-[15px] font-extrabold text-[#1677EA] md:text-[17px]">
           <Zap className="h-4 w-4 text-primary-blue md:h-5 md:w-5" strokeWidth={2.4} fill="currentColor" />
-          간단한 3단계로 빠른 상담
+          시간 끌 필요 있나요?
         </span>
 
-        <h2 className="mt-6 break-keep text-center text-[32px] font-extrabold leading-[1.15] tracking-tight text-[#0B1F3A] sm:text-[42px] lg:text-[52px]">
-          준비할 서류 0개, 누워서 톡만 주세요
-          <br />
-          <span className="text-primary-blue">딱 3단계면 끝납니다.</span>
+        <h2 className="mt-6 flex flex-col items-center gap-1 text-center leading-[1.1] tracking-tighter sm:gap-2">
+          <span className="break-keep text-[30px] font-extrabold text-[#0B1F3A] sm:text-[40px] lg:text-[48px]">
+            문의는 10초면 됩니다.
+          </span>
+          <span className="break-keep text-[36px] font-black text-primary-blue sm:text-[48px] lg:text-[58px]">
+            나머지는 안내해드립니다.
+          </span>
         </h2>
 
-        <p className="mt-5 text-center text-[17px] leading-relaxed text-[#526079] md:text-[19px]">
-          평균 소요 시간{" "}
-          <span className="inline-flex items-center rounded-lg bg-primary-blue px-2.5 py-1 align-middle text-[15px] font-extrabold text-white shadow-[0_4px_12px_rgba(40,120,240,0.18)] md:text-base">
-            5분
-          </span>
-          , 집에서 편하게 신청하세요.
+        <p className="mt-5 text-center text-[16px] leading-relaxed text-[#526079] md:text-[18px]">
+          휴대폰으로 간편하게 시작하세요.
         </p>
 
         <div className="mt-14 grid w-full grid-cols-1 gap-y-8 lg:grid-cols-[1fr_60px_1fr_60px_1fr] lg:items-stretch lg:gap-y-0">
