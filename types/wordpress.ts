@@ -28,6 +28,7 @@ export interface WordPressPost {
   id: number;
   slug: string;
   date: string;
+  modified: string;
   title: WordPressRenderedField;
   excerpt: WordPressRenderedField;
   content: WordPressRenderedField;
@@ -43,6 +44,7 @@ export interface BlogPost {
   excerpt: string;
   content: string;
   date: string;
+  modified: string;
   featuredImage: string | null;
 }
 

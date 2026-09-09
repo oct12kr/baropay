@@ -150,6 +150,7 @@ export const mockBlogPosts: BlogPost[] = ENTRIES.map((entry, index) => {
     excerpt: entry.excerpt,
     content: `<p>${entry.excerpt}</p><p>본 게시글은 디자인 확인을 위한 임시(mock) 콘텐츠이며, 실제 WordPress 발행글이 아닙니다.</p>`,
     date: date.toISOString(),
+    modified: date.toISOString(),
     featuredImage: buildThumbnail(index),
   };
 });

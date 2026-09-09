@@ -6,6 +6,7 @@ import Container from "@/components/common/Container";
 import BlogDetail from "@/components/blog/BlogDetail";
 import { getPostBySlug, getRelatedPosts } from "@/lib/wordpress";
 import { siteConfig } from "@/config/site";
+import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -16,22 +17,22 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const post = await getPostBySlug(slug);
 
   if (!post) {
-    return { title: `블로그 | ${siteConfig.name}` };
+    return buildMetadata({
+      title: `블로그 | ${siteConfig.name}`,
+      description: siteConfig.description,
+      path: `/blog/${slug}`,
+    });
   }
 
-  const title = `${post.title} | ${siteConfig.name}`;
-
-  return {
-    title,
+  return buildMetadata({
+    title: `${post.title} | ${siteConfig.name}`,
     description: post.excerpt || siteConfig.description,
-    openGraph: {
-      title,
-      description: post.excerpt || siteConfig.description,
-      images: post.featuredImage ? [post.featuredImage] : undefined,
-      type: "article",
-      publishedTime: post.date,
-    },
-  };
+    path: `/blog/${post.slug}`,
+    images: post.featuredImage ? [post.featuredImage] : undefined,
+    type: "article",
+    publishedTime: post.date,
+    modifiedTime: post.modified,
+  });
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
@@ -43,9 +44,30 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const relatedPosts = await getRelatedPosts(post.id, 3);
+  const postUrl = absoluteUrl(`/blog/${post.slug}`);
+
+  const blogPostingJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt || siteConfig.description,
+    datePublished: post.date,
+    dateModified: post.modified,
+    image: post.featuredImage ?? absoluteUrl("/apple-touch-icon.png"),
+    mainEntityOfPage: postUrl,
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      logo: absoluteUrl("/apple-touch-icon.png"),
+    },
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingJsonLd) }}
+      />
       <Header />
       <main>
         <Container>

@@ -7,11 +7,13 @@ import Pagination from "@/components/blog/Pagination";
 import { getPosts } from "@/lib/wordpress";
 import { mockBlogPosts } from "@/data/mockBlogPosts";
 import { siteConfig } from "@/config/site";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: `블로그 | ${siteConfig.name}`,
-  description: "바로페이의 다양한 정보와 최신 소식을 확인하세요.",
-};
+  description: "바로페이의 소액결제, 정보이용료 관련 안내와 이용후기를 확인하세요.",
+  path: "/blog",
+});
 
 interface BlogPageProps {
   searchParams: Promise<{ page?: string }>;

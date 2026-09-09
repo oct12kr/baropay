@@ -32,6 +32,7 @@ function mapPost(post: WordPressPost): BlogPost {
     excerpt: post.excerpt.rendered.replace(/<[^>]+>/g, "").trim(),
     content: post.content.rendered,
     date: post.date,
+    modified: post.modified ?? post.date,
     featuredImage: getFeaturedImage(post),
   };
 }
@@ -73,6 +74,19 @@ export async function getPosts(page = 1, perPage = 16): Promise<PaginatedPosts> 
   const totalPages = Number(res.headers.get("X-WP-TotalPages") ?? 1);
 
   return { posts: posts.map(mapPost), total, totalPages, page };
+}
+
+/** All published posts, across pages. Used for sitemap/RSS generation. */
+export async function getAllPosts(): Promise<BlogPost[]> {
+  const perPage = 100;
+  const first = await getPosts(1, perPage);
+  if (first.totalPages <= 1) return first.posts;
+
+  const rest = await Promise.all(
+    Array.from({ length: first.totalPages - 1 }, (_, i) => getPosts(i + 2, perPage))
+  );
+
+  return [...first.posts, ...rest.flatMap((page) => page.posts)];
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {

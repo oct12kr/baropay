@@ -1,18 +1,18 @@
 import type { MetadataRoute } from "next";
-import { getPosts } from "@/lib/wordpress";
-import { siteConfig } from "@/config/site";
+import { getAllPosts } from "@/lib/wordpress";
+import { absoluteUrl } from "@/lib/seo";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { posts } = await getPosts(1, 100);
+  const posts = await getAllPosts();
 
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: siteConfig.url, changeFrequency: "weekly", priority: 1 },
-    { url: `${siteConfig.url}/blog`, changeFrequency: "daily", priority: 0.8 },
+    { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1 },
+    { url: absoluteUrl("/blog"), changeFrequency: "daily", priority: 0.8 },
   ];
 
   const postRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${siteConfig.url}/blog/${post.slug}`,
-    lastModified: new Date(post.date),
+    url: absoluteUrl(`/blog/${post.slug}`),
+    lastModified: new Date(post.modified || post.date),
     changeFrequency: "monthly",
     priority: 0.6,
   }));
