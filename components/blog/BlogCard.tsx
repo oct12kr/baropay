@@ -5,7 +5,6 @@ import type { BlogPost } from "@/types/wordpress";
 
 interface BlogCardProps {
   post: BlogPost;
-  href?: string;
   badge?: string;
 }
 
@@ -15,10 +14,10 @@ function formatDate(dateString: string) {
   return date.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
 }
 
-export default function BlogCard({ post, href, badge }: BlogCardProps) {
+export default function BlogCard({ post, badge }: BlogCardProps) {
   return (
     <Link
-      href={href ?? `/blog/${post.slug}`}
+      href={`/blog/${post.slug}`}
       className="group flex flex-col overflow-hidden rounded-[20px] border border-border bg-white transition-all duration-250 hover:-translate-y-[3px] hover:shadow-[0_20px_40px_-16px_rgba(7,30,61,0.18)]"
     >
       <div className="relative aspect-video w-full overflow-hidden bg-light-blue">

@@ -38,14 +38,27 @@ function mapPost(post: WordPressPost): BlogPost {
 }
 
 async function wpFetch(path: string): Promise<Response | null> {
-  if (!API_BASE) return null;
+  if (!API_BASE) {
+    console.error("[wordpress] WORDPRESS_URL is not configured; returning empty results.");
+    return null;
+  }
 
   try {
-    return await fetch(`${API_BASE}${path}`, {
+    const res = await fetch(`${API_BASE}${path}`, {
       headers: getAuthHeaders(),
       next: { revalidate: REVALIDATE_SECONDS },
     });
-  } catch {
+
+    if (!res.ok) {
+      console.error(`[wordpress] request failed: ${res.status} ${res.statusText} (${path})`);
+    }
+
+    return res;
+  } catch (error) {
+    console.error(
+      `[wordpress] request error for ${path}:`,
+      error instanceof Error ? error.message : error
+    );
     return null;
   }
 }

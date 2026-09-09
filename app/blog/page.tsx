@@ -5,7 +5,6 @@ import Container from "@/components/common/Container";
 import BlogList from "@/components/blog/BlogList";
 import Pagination from "@/components/blog/Pagination";
 import { getPosts } from "@/lib/wordpress";
-import { mockBlogPosts } from "@/data/mockBlogPosts";
 import { siteConfig } from "@/config/site";
 import { buildMetadata } from "@/lib/seo";
 
@@ -24,13 +23,7 @@ const PAGE_SIZE = 16;
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const { page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
-  const { posts: realPosts, totalPages: realTotalPages } = await getPosts(page, PAGE_SIZE);
-
-  // Same design-preview fallback as the homepage: only kicks in on page 1,
-  // since the mock set is a single full page of 16.
-  const usingMock = realPosts.length < PAGE_SIZE && page === 1;
-  const posts = usingMock ? mockBlogPosts : realPosts;
-  const totalPages = usingMock ? 1 : realTotalPages;
+  const { posts, totalPages } = await getPosts(page, PAGE_SIZE);
 
   return (
     <>
@@ -50,7 +43,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
         <section className="bg-white py-16 md:py-24">
           <Container>
-            <BlogList posts={posts} columns={4} linkOverride={usingMock ? "#" : undefined} />
+            <BlogList posts={posts} columns={4} emptyMessage="등록된 게시글이 없습니다." />
             <Pagination currentPage={page} totalPages={totalPages} basePath="/blog" />
           </Container>
         </section>

@@ -4,16 +4,11 @@ import Container from "@/components/common/Container";
 import SectionTitle from "@/components/common/SectionTitle";
 import BlogList from "@/components/blog/BlogList";
 import { getLatestPosts } from "@/lib/wordpress";
-import { mockBlogPosts } from "@/data/mockBlogPosts";
 
 const MAIN_REVIEW_COUNT = 16;
 
 export default async function Reviews() {
-  const realPosts = await getLatestPosts(MAIN_REVIEW_COUNT);
-  // WordPress currently has far fewer than 16 published posts, so fall back
-  // to mock cards for the design preview until real content catches up.
-  const usingMock = realPosts.length < MAIN_REVIEW_COUNT;
-  const posts = usingMock ? mockBlogPosts.slice(0, MAIN_REVIEW_COUNT) : realPosts;
+  const posts = await getLatestPosts(MAIN_REVIEW_COUNT);
 
   return (
     <section id="reviews" className="bg-white py-20 md:py-28">
@@ -29,7 +24,7 @@ export default async function Reviews() {
             posts={posts}
             columns={4}
             badge="이용후기"
-            linkOverride={usingMock ? "/blog" : undefined}
+            emptyMessage="등록된 후기가 없습니다."
           />
 
           <Link
