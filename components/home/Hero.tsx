@@ -89,12 +89,21 @@ export default function Hero() {
             24시간 빠르고 안전한 비상금 해결
           </span>
 
-          <h1 className="text-[32px] font-extrabold leading-[1.25] tracking-tight text-text md:text-[46px] lg:text-[56px] lg:leading-[1.2]">
-            3분이면 입금완료
-            <br />
-            소액결제 현금화 업계1위
-            <br />
-            <span className="text-primary-blue">바로페이</span>
+          <h1 className="text-[32px] font-extrabold leading-[1.15] tracking-tight md:text-[46px] md:leading-[1.18] lg:text-[56px] lg:leading-[1.2]">
+            <span className="block text-deep-navy">3분이면 입금완료</span>
+            <span className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 md:mt-2.5">
+              <span className="text-primary-blue">소액결제</span>
+              <span className="text-deep-navy">현금화</span>
+              <span className="inline-flex items-center rounded-[12px] bg-light-blue px-2.5 py-1 text-[18px] font-bold leading-none text-primary-blue-dark md:px-3 md:py-1.5 md:text-[26px] lg:px-3.5 lg:py-1.5 lg:text-[32px]">
+                업계1위
+              </span>
+            </span>
+            <span
+              className="mt-1.5 block bg-clip-text text-transparent md:mt-2.5"
+              style={{ backgroundImage: "linear-gradient(90deg, #2475ED, #4B8FFF)" }}
+            >
+              바로페이
+            </span>
           </h1>
 
           <div className="flex flex-col gap-3 pt-1">
