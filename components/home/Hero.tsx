@@ -1,4 +1,4 @@
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Crown } from "lucide-react";
 import Container from "@/components/common/Container";
 import KakaoButton from "@/components/common/KakaoButton";
 import PhoneButton from "@/components/common/PhoneButton";
@@ -90,19 +90,63 @@ export default function Hero() {
           </span>
 
           <h1 className="text-[32px] font-extrabold leading-[1.15] tracking-tight md:text-[46px] md:leading-[1.18] lg:text-[56px] lg:leading-[1.2]">
-            <span className="block text-deep-navy">3분이면 입금완료</span>
-            <span className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 md:mt-2.5">
-              <span className="text-primary-blue">소액결제</span>
-              <span className="text-deep-navy">현금화</span>
-              <span className="inline-flex items-center rounded-[12px] bg-light-blue px-2.5 py-1 text-[18px] font-bold leading-none text-primary-blue-dark md:px-3 md:py-1.5 md:text-[26px] lg:px-3.5 lg:py-1.5 lg:text-[32px]">
-                업계1위
+            <span className="block font-black text-deep-navy">3분이면 입금완료</span>
+
+            <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 md:mt-3">
+              <span className="relative isolate inline-block">
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-[-6%] bottom-[-0.03em] -z-10 h-[0.26em] rounded-[999px]"
+                  style={{
+                    background: "rgba(254,229,0,0.82)",
+                    transform: "rotate(-2deg)",
+                  }}
+                />
+                <span
+                  className="relative bg-clip-text font-black text-transparent"
+                  style={{ backgroundImage: "linear-gradient(90deg, #2477F3, #3989FF)" }}
+                >
+                  소액결제
+                </span>
+              </span>
+
+              <span className="font-extrabold text-deep-navy">현금화</span>
+
+              <span className="relative isolate inline-flex">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-1 -top-2.5 flex gap-[3px] md:-right-1.5 md:-top-3"
+                >
+                  <span className="h-[9px] w-[2.5px] rotate-[18deg] rounded-full bg-[#FEE500] md:h-3" />
+                  <span className="h-[6px] w-[2.5px] rotate-[18deg] rounded-full bg-[#FEE500] md:h-[9px]" />
+                </span>
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-[14px] bg-kakao px-3.5 py-2 text-[16px] font-black leading-none text-deep-navy shadow-[0_6px_16px_rgba(7,30,61,0.15)] md:px-4 md:py-2.5 md:text-[22px] lg:px-4 lg:py-2.5 lg:text-[26px]"
+                  style={{ transform: "rotate(-2deg)" }}
+                >
+                  <Crown className="h-4 w-4 md:h-5 md:w-5" strokeWidth={2.5} />
+                  업계1위
+                </span>
               </span>
             </span>
-            <span
-              className="mt-1.5 block bg-clip-text text-transparent md:mt-2.5"
-              style={{ backgroundImage: "linear-gradient(90deg, #2475ED, #4B8FFF)" }}
-            >
-              바로페이
+
+            <span className="mt-2 block md:mt-3">
+              <span className="relative isolate inline-block">
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-[-4%] bottom-[0.04em] -z-10 h-[0.3em] rounded-[999px]"
+                  style={{
+                    background: "rgba(40,120,240,0.15)",
+                    transform: "rotate(-1deg)",
+                  }}
+                />
+                <span
+                  className="relative bg-clip-text font-black text-transparent"
+                  style={{ backgroundImage: "linear-gradient(90deg, #2475ED, #4B8FFF)" }}
+                >
+                  바로페이
+                </span>
+              </span>
             </span>
           </h1>
 
