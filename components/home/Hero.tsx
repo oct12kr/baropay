@@ -89,8 +89,10 @@ export default function Hero() {
             24시간 빠르고 안전한 비상금 해결
           </span>
 
-          <h1 className="text-[38px] font-extrabold leading-[1.2] tracking-tight text-text md:text-[54px] lg:text-[64px] lg:leading-[1.15]">
-            3분이면 입금완료,
+          <h1 className="text-[32px] font-extrabold leading-[1.25] tracking-tight text-text md:text-[46px] lg:text-[56px] lg:leading-[1.2]">
+            3분이면 입금완료
+            <br />
+            소액결제 현금화 업계1위
             <br />
             <span className="text-primary-blue">바로페이</span>
           </h1>
