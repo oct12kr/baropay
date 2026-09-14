@@ -11,6 +11,7 @@ import FAQ from "@/components/home/FAQ";
 import BottomCTA from "@/components/home/BottomCTA";
 import { siteConfig } from "@/config/site";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
+import { faqs } from "@/data/faq";
 
 const HOME_TITLE = "소액결제 한도 및 이용방법 안내 | 바로페이";
 
@@ -36,6 +37,21 @@ const websiteJsonLd = {
   url: siteConfig.url,
 };
 
+/** Mirrors the FAQ section rendered below — every question/answer here is
+ * visible on the page itself, as required for FAQPage rich results. */
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+};
+
 export default function Home() {
   return (
     <>
@@ -46,6 +62,10 @@ export default function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <Header />
       <main>

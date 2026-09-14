@@ -12,9 +12,15 @@ interface BuildMetadataInput {
   modifiedTime?: string;
 }
 
-/** Absolute, www-canonical URL for a given site-relative path. */
+/**
+ * Absolute, www-canonical URL for a given site-relative path. The homepage
+ * resolves to the bare origin (no trailing slash) to match how Next.js's
+ * metadata resolver always renders the root canonical/OG URL — keeping
+ * sitemap.xml, JSON-LD, and Breadcrumb entries consistent with the actual
+ * <link rel="canonical"> Next.js emits for "/".
+ */
 export function absoluteUrl(path: string): string {
-  if (path === "/") return `${siteConfig.url}/`;
+  if (path === "/") return siteConfig.url;
   return `${siteConfig.url}${path}`;
 }
 

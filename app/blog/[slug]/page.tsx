@@ -55,6 +55,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     dateModified: post.modified,
     image: post.featuredImage ?? absoluteUrl("/apple-touch-icon.png"),
     mainEntityOfPage: postUrl,
+    author: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
     publisher: {
       "@type": "Organization",
       name: siteConfig.name,

@@ -49,6 +49,8 @@ export interface BlogPost {
   modified: string;
   featuredImage: string | null;
   featuredImageAlt: string | null;
+  featuredImageWidth: number | null;
+  featuredImageHeight: number | null;
 }
 
 export interface PaginatedPosts {

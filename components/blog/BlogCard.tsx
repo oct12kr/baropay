@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { BLOG_PLACEHOLDER_IMAGE } from "@/lib/wordpress";
 import type { BlogPost } from "@/types/wordpress";
@@ -31,12 +32,22 @@ export default function BlogCard({ post, badge }: BlogCardProps) {
             {badge}
           </span>
         ) : null}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={post.featuredImage ?? BLOG_PLACEHOLDER_IMAGE}
-          alt={post.featuredImageAlt ?? post.title}
-          className="h-full w-full object-cover transition-transform duration-250 group-hover:scale-105"
-        />
+        {post.featuredImage ? (
+          <Image
+            src={post.featuredImage}
+            alt={post.featuredImageAlt ?? post.title}
+            fill
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover transition-transform duration-250 group-hover:scale-105"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element -- local SVG placeholder, not eligible for the remote image optimizer
+          <img
+            src={BLOG_PLACEHOLDER_IMAGE}
+            alt={post.title}
+            className="h-full w-full object-cover transition-transform duration-250 group-hover:scale-105"
+          />
+        )}
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-5">

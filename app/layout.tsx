@@ -28,6 +28,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ko" className="h-full antialiased">
+      <head>
+        {/* Font CSS lives behind a cross-origin request, so preconnect early;
+            a <link rel="stylesheet"> (vs. the CSS @import this replaces) is
+            discovered by the browser's preload scanner immediately instead of
+            only after the bundled stylesheet itself has been fetched and parsed. */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css"
+        />
+      </head>
       <body className="flex min-h-full flex-col bg-white text-text">
         {children}
         <FloatingKakao />

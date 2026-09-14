@@ -29,6 +29,16 @@ function getFeaturedImageAlt(post: WordPressPost): string | null {
   return alt && alt.trim().length > 0 ? alt : null;
 }
 
+/** Intrinsic dimensions of the featured image, used to reserve layout space
+ * (prevents CLS) and enable next/image optimization without cropping. */
+function getFeaturedImageDimensions(post: WordPressPost): {
+  width: number | null;
+  height: number | null;
+} {
+  const details = post._embedded?.["wp:featuredmedia"]?.[0]?.media_details;
+  return { width: details?.width ?? null, height: details?.height ?? null };
+}
+
 const NAMED_HTML_ENTITIES: Record<string, string> = {
   amp: "&",
   lt: "<",
@@ -61,6 +71,7 @@ function toIsoUtc(gmtDateString: string): string {
 }
 
 function mapPost(post: WordPressPost): BlogPost {
+  const { width, height } = getFeaturedImageDimensions(post);
   return {
     id: post.id,
     slug: post.slug,
@@ -71,6 +82,8 @@ function mapPost(post: WordPressPost): BlogPost {
     modified: toIsoUtc(post.modified_gmt || post.date_gmt),
     featuredImage: getFeaturedImage(post),
     featuredImageAlt: getFeaturedImageAlt(post),
+    featuredImageWidth: width,
+    featuredImageHeight: height,
   };
 }
 

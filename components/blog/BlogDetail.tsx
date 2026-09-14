@@ -1,7 +1,14 @@
+import Image from "next/image";
 import KakaoButton from "@/components/common/KakaoButton";
+import Breadcrumb from "@/components/common/Breadcrumb";
 import BlogCard from "@/components/blog/BlogCard";
 import { BLOG_PLACEHOLDER_IMAGE } from "@/lib/wordpress";
 import type { BlogPost } from "@/types/wordpress";
+
+/** Fallback aspect ratio (matches the site's default OG image) for the rare
+ * case a WordPress media item has no recorded width/height. */
+const FALLBACK_IMAGE_WIDTH = 1200;
+const FALLBACK_IMAGE_HEIGHT = 630;
 
 interface BlogDetailProps {
   post: BlogPost;
@@ -22,6 +29,10 @@ function formatDate(dateString: string) {
 export default function BlogDetail({ post, relatedPosts }: BlogDetailProps) {
   return (
     <article className="mx-auto flex w-full max-w-[820px] flex-col gap-8 py-16 md:py-20">
+      <Breadcrumb
+        items={[{ label: "홈", href: "/" }, { label: "블로그", href: "/blog" }, { label: post.title }]}
+      />
+
       <div className="flex flex-col gap-3">
         <h1 className="text-[28px] font-extrabold leading-tight text-text md:text-[36px]">
           {post.title}
@@ -29,12 +40,24 @@ export default function BlogDetail({ post, relatedPosts }: BlogDetailProps) {
         <p className="text-sm text-gray-text">{formatDate(post.date)}</p>
       </div>
 
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={post.featuredImage ?? BLOG_PLACEHOLDER_IMAGE}
-        alt={post.featuredImageAlt ?? post.title}
-        className="w-full rounded-[20px] object-cover"
-      />
+      {post.featuredImage ? (
+        <Image
+          src={post.featuredImage}
+          alt={post.featuredImageAlt ?? post.title}
+          width={post.featuredImageWidth ?? FALLBACK_IMAGE_WIDTH}
+          height={post.featuredImageHeight ?? FALLBACK_IMAGE_HEIGHT}
+          priority
+          sizes="(min-width: 820px) 820px, 100vw"
+          className="w-full rounded-[20px] object-cover"
+        />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element -- local SVG placeholder, not eligible for the remote image optimizer
+        <img
+          src={BLOG_PLACEHOLDER_IMAGE}
+          alt={post.title}
+          className="w-full rounded-[20px] object-cover"
+        />
+      )}
 
       <div
         className="flex flex-col gap-4 text-[16px] leading-[1.9] text-text/85
