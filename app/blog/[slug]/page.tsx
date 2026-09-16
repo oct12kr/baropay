@@ -4,7 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Container from "@/components/common/Container";
 import BlogDetail from "@/components/blog/BlogDetail";
-import { getAllPosts, getPostBySlug, getRecentPosts } from "@/lib/wordpress";
+import { getPostBySlug, getRecentPosts } from "@/lib/wordpress";
 import { siteConfig } from "@/config/site";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
@@ -12,19 +12,16 @@ interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
-/**
- * Pre-renders every known post at build/deploy time so it's served as a
- * cached static page (revalidated every 300s, same as the WordPress fetch)
- * instead of running a full server render on every visit. `dynamicParams`
- * stays at its default `true`, so a post published on WordPress after the
- * last deploy still resolves — Next.js renders it on demand on first visit
- * and caches that output going forward, preserving auto-publish without a
- * redeploy.
- */
-export async function generateStaticParams() {
-  const posts = await getAllPosts();
-  return posts.map((post) => ({ slug: post.slug }));
-}
+// Deliberately no generateStaticParams here: WordPress post slugs for this
+// site are non-ASCII (Korean) and WordPress's sanitize_title() stores them as
+// literal percent-encoded ASCII text (e.g. slug === "%ec%86%8c..."), not the
+// raw characters. Baking that exact byte sequence into the build's static
+// params/prerender manifest ties every request's success to matching that
+// literal encoding, and ties page availability to WordPress being reachable
+// from Vercel's *build* environment. Neither risk is worth it on a site whose
+// core requirement is that a WordPress-published post is reachable without a
+// redeploy: this route renders fully on demand per request, relying solely on
+// the `revalidate: 300` fetch cache in lib/wordpress.ts for speed.
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
