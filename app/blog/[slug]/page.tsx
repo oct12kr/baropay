@@ -4,12 +4,26 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Container from "@/components/common/Container";
 import BlogDetail from "@/components/blog/BlogDetail";
-import { getPostBySlug, getRelatedPosts } from "@/lib/wordpress";
+import { getAllPosts, getPostBySlug, getRecentPosts } from "@/lib/wordpress";
 import { siteConfig } from "@/config/site";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
+}
+
+/**
+ * Pre-renders every known post at build/deploy time so it's served as a
+ * cached static page (revalidated every 300s, same as the WordPress fetch)
+ * instead of running a full server render on every visit. `dynamicParams`
+ * stays at its default `true`, so a post published on WordPress after the
+ * last deploy still resolves — Next.js renders it on demand on first visit
+ * and caches that output going forward, preserving auto-publish without a
+ * redeploy.
+ */
+export async function generateStaticParams() {
+  const posts = await getAllPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
@@ -37,13 +51,18 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+
+  // Fetched in parallel: the related-posts query doesn't depend on the
+  // current post's id (filtering happens locally below), so there's no need
+  // to wait for `getPostBySlug` before starting it — this halves the
+  // WordPress round-trip latency on a cold cache.
+  const [post, recentPosts] = await Promise.all([getPostBySlug(slug), getRecentPosts(4)]);
 
   if (!post) {
     notFound();
   }
 
-  const relatedPosts = await getRelatedPosts(post.id, 3);
+  const relatedPosts = recentPosts.filter((p) => p.id !== post.id).slice(0, 3);
   const postUrl = absoluteUrl(`/blog/${post.slug}`);
 
   const blogPostingJsonLd = {

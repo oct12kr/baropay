@@ -70,6 +70,11 @@ function toIsoUtc(gmtDateString: string): string {
   return `${gmtDateString}Z`;
 }
 
+/** Fields requested for list views (home reviews, /blog, related posts), which
+ * never render full post body — excluding `content` avoids downloading and
+ * parsing every post's full HTML just to show a title/excerpt/thumbnail. */
+const LIST_FIELDS = "id,slug,date_gmt,modified_gmt,title,excerpt,featured_media,_links,_embedded";
+
 function mapPost(post: WordPressPost): BlogPost {
   const { width, height } = getFeaturedImageDimensions(post);
   return {
@@ -77,7 +82,7 @@ function mapPost(post: WordPressPost): BlogPost {
     slug: post.slug,
     title: decodeHtmlEntities(post.title.rendered),
     excerpt: decodeHtmlEntities(post.excerpt.rendered.replace(/<[^>]+>/g, "").trim()),
-    content: post.content.rendered,
+    content: post.content?.rendered ?? "",
     date: toIsoUtc(post.date_gmt),
     modified: toIsoUtc(post.modified_gmt || post.date_gmt),
     featuredImage: getFeaturedImage(post),
@@ -115,7 +120,9 @@ async function wpFetch(path: string): Promise<Response | null> {
 
 /** Latest N published posts, newest first. Used on the homepage. */
 export async function getLatestPosts(limit = 16): Promise<BlogPost[]> {
-  const res = await wpFetch(`/posts?_embed&per_page=${limit}&orderby=date&order=desc`);
+  const res = await wpFetch(
+    `/posts?_embed&per_page=${limit}&orderby=date&order=desc&_fields=${LIST_FIELDS}`
+  );
   if (!res || !res.ok) return [];
 
   const posts = (await res.json()) as WordPressPost[];
@@ -125,7 +132,7 @@ export async function getLatestPosts(limit = 16): Promise<BlogPost[]> {
 /** Paginated post list for /blog. */
 export async function getPosts(page = 1, perPage = 16): Promise<PaginatedPosts> {
   const res = await wpFetch(
-    `/posts?_embed&per_page=${perPage}&page=${page}&orderby=date&order=desc`
+    `/posts?_embed&per_page=${perPage}&page=${page}&orderby=date&order=desc&_fields=${LIST_FIELDS}`
   );
 
   if (!res || !res.ok) {
@@ -160,14 +167,22 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   return posts[0] ? mapPost(posts[0]) : null;
 }
 
-/** Latest posts excluding the one currently being read (single-category site, so no category filter needed). */
-export async function getRelatedPosts(excludeId: number, limit = 4): Promise<BlogPost[]> {
-  const res = await wpFetch(`/posts?_embed&per_page=${limit + 1}&orderby=date&order=desc`);
+/** Latest `limit + 1` posts, newest first, with no exclusion applied yet. Kept
+ * separate from `getRelatedPosts` so the detail page can fetch this in
+ * parallel with `getPostBySlug` (its result doesn't depend on the current
+ * post's id) instead of waiting for the post to resolve first. */
+export async function getRecentPosts(limit = 4): Promise<BlogPost[]> {
+  const res = await wpFetch(
+    `/posts?_embed&per_page=${limit}&orderby=date&order=desc&_fields=${LIST_FIELDS}`
+  );
   if (!res || !res.ok) return [];
 
   const posts = (await res.json()) as WordPressPost[];
-  return posts
-    .filter((post) => post.id !== excludeId)
-    .slice(0, limit)
-    .map(mapPost);
+  return posts.map(mapPost);
+}
+
+/** Latest posts excluding the one currently being read (single-category site, so no category filter needed). */
+export async function getRelatedPosts(excludeId: number, limit = 4): Promise<BlogPost[]> {
+  const posts = await getRecentPosts(limit + 1);
+  return posts.filter((post) => post.id !== excludeId).slice(0, limit);
 }
