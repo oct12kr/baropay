@@ -13,7 +13,7 @@ import { siteConfig } from "@/config/site";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { faqs } from "@/data/faq";
 
-const HOME_TITLE = "소액결제 한도 및 이용방법 안내 | 바로페이";
+const HOME_TITLE = "소액결제 한도 및 이용방법 안내 | 딴딴페이";
 
 export const metadata: Metadata = buildMetadata({
   title: HOME_TITLE,

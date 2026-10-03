@@ -144,7 +144,7 @@ export default function Hero() {
                   className="relative bg-clip-text font-black text-transparent"
                   style={{ backgroundImage: "linear-gradient(90deg, #2475ED, #4B8FFF)" }}
                 >
-                  바로페이
+                  딴딴페이
                 </span>
               </span>
             </span>

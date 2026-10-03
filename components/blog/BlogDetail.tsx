@@ -78,7 +78,7 @@ export default function BlogDetail({ post, relatedPosts }: BlogDetailProps) {
         <div>
           <p className="text-base font-bold text-text">궁금한 점이 있으신가요?</p>
           <p className="mt-1 text-sm text-gray-text">
-            바로페이 상담을 통해 빠르게 확인하세요.
+            딴딴페이 상담을 통해 빠르게 확인하세요.
           </p>
         </div>
         <KakaoButton />

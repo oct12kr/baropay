@@ -25,7 +25,7 @@ export async function generateMetadata({ searchParams }: BlogPageProps): Promise
   const { page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
   const path = page > 1 ? `/blog?page=${page}` : "/blog";
-  const baseDescription = "바로페이의 소액결제, 정보이용료 관련 안내와 이용후기를 확인하세요.";
+  const baseDescription = "딴딴페이의 소액결제, 정보이용료 관련 안내와 이용후기를 확인하세요.";
 
   return buildMetadata({
     title: page > 1 ? `블로그 ${page}페이지 | ${siteConfig.name}` : `블로그 | ${siteConfig.name}`,
@@ -46,9 +46,9 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         <section className="bg-section-1 py-16 md:py-20">
           <Container className="flex flex-col items-center gap-4 text-center">
             <Breadcrumb items={[{ label: "홈", href: "/" }, { label: "블로그" }]} />
-            <span className="text-sm font-bold text-primary-blue">BAROPAY BLOG</span>
+            <span className="text-sm font-bold text-primary-blue">DDANDDANPAY BLOG</span>
             <h1 className="text-[32px] font-extrabold text-text md:text-[44px]">
-              바로페이 블로그
+              딴딴페이 블로그
             </h1>
             <p className="max-w-xl text-base text-gray-text md:text-lg">
               다양한 정보와 최신 소식을 확인하세요.

@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, MessageCircle, Phone, X } from "lucide-react";
 import Container from "@/components/common/Container";
 import Logo from "@/components/common/Logo";
 import KakaoButton from "@/components/common/KakaoButton";
+import PhoneButton from "@/components/common/PhoneButton";
+import { siteConfig } from "@/config/site";
 import { navigation } from "@/data/navigation";
 
 export default function Header() {
@@ -39,20 +41,37 @@ export default function Header() {
           <Logo />
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden items-center gap-5 lg:flex xl:gap-8">
           {navigation.map((item) => (
             <Link
               key={item.label}
               href={item.href}
-              className="text-[15px] font-medium text-text/80 transition-colors hover:text-primary-blue"
+              className="whitespace-nowrap text-[15px] font-medium text-text/80 transition-colors hover:text-primary-blue"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden lg:block">
-          <KakaoButton className="px-5 py-2.5 text-sm" />
+        <div className="hidden shrink-0 items-stretch overflow-hidden whitespace-nowrap rounded-xl bg-kakao text-sm font-bold text-kakao-text transition-transform duration-200 hover:-translate-y-0.5 lg:flex">
+          <a
+            href={siteConfig.kakaoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 py-2.5 pl-4 pr-3 hover:bg-black/5 xl:pl-5 xl:pr-4"
+          >
+            <MessageCircle className="h-5 w-5" strokeWidth={2.4} />
+            카카오톡 상담하기
+          </a>
+          <span aria-hidden="true" className="my-2 w-px bg-kakao-text/20" />
+          <a
+            href={siteConfig.phoneHref}
+            aria-label={`전화 상담 ${siteConfig.phoneDisplay}`}
+            className="inline-flex items-center gap-1.5 py-2.5 pl-3 pr-4 tracking-tight xl:pl-4 xl:pr-5 hover:bg-black/5"
+          >
+            <Phone className="h-4 w-4" strokeWidth={2.4} />
+            {siteConfig.phoneDisplay}
+          </a>
         </div>
 
         <button
@@ -80,6 +99,7 @@ export default function Header() {
             ))}
           </nav>
           <KakaoButton full className="mt-4" />
+          <PhoneButton full className="mt-2" />
         </div>
       ) : null}
     </header>

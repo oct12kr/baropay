@@ -16,9 +16,9 @@ export default function WhyBaropay() {
     <section className="bg-white px-5 py-20 md:px-6 md:py-28 lg:px-8">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-10 rounded-[24px] bg-navy-2 p-8 text-white md:p-14 lg:flex-row lg:items-center lg:gap-6">
         <div className="lg:w-[220px] lg:shrink-0">
-          <p className="text-sm font-bold text-white/60">WHY BAROPAY</p>
+          <p className="text-sm font-bold text-white/60">WHY DDANDDANPAY</p>
           <h2 className="mt-3 text-[28px] font-extrabold leading-tight md:text-[34px]">
-            바로페이가
+            딴딴페이가
             <br />
             선택받는 이유
           </h2>

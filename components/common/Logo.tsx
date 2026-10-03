@@ -1,3 +1,5 @@
+import { siteConfig } from "@/config/site";
+
 interface LogoProps {
   variant?: "dark" | "light";
   className?: string;
@@ -11,7 +13,7 @@ export default function Logo({ variant = "dark", className = "" }: LogoProps) {
       <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary-blue text-[19px] font-black text-white">
         B
       </span>
-      <span className={`text-[20px] font-extrabold tracking-tight ${textClass}`}>바로페이</span>
+      <span className={`text-[20px] font-extrabold tracking-tight ${textClass}`}>{siteConfig.name}</span>
     </span>
   );
 }

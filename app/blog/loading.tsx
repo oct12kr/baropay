@@ -28,9 +28,9 @@ export default function BlogLoading() {
       <main>
         <section className="bg-section-1 py-16 md:py-20">
           <Container className="flex flex-col items-center gap-4 text-center">
-            <span className="text-sm font-bold text-primary-blue">BAROPAY BLOG</span>
+            <span className="text-sm font-bold text-primary-blue">DDANDDANPAY BLOG</span>
             <h1 className="text-[32px] font-extrabold text-text md:text-[44px]">
-              바로페이 블로그
+              딴딴페이 블로그
             </h1>
             <p className="max-w-xl text-base text-gray-text md:text-lg">
               다양한 정보와 최신 소식을 확인하세요.

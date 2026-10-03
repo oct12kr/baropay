@@ -25,7 +25,7 @@ export default function Footer() {
           <p className="max-w-xs text-sm leading-relaxed text-white/60">
             24시간 빠르고 안전한 상담 서비스
             <br />
-            바로페이가 함께합니다.
+            딴딴페이가 함께합니다.
           </p>
           <div className="mt-2 flex gap-3 text-xs text-white/50">
             <a href="#" className="hover:text-white">

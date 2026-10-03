@@ -19,13 +19,14 @@ export default function PhoneButton({
 
   return (
     <a
-      href={siteConfig.phoneHref || "#"}
+      href={siteConfig.phoneHref}
+      aria-label={`전화 상담 ${siteConfig.phoneDisplay}`}
       className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[15px] font-bold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 ${variantClass} ${
         full ? "w-full" : ""
       } ${className}`}
     >
       <Phone className="h-5 w-5" strokeWidth={2.4} />
-      전화 상담하기
+      {siteConfig.phoneDisplay}
     </a>
   );
 }

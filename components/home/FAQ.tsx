@@ -93,7 +93,7 @@ export default function FAQ() {
         <SectionTitle
           eyebrow="자주 묻는 질문"
           title="궁금한 점을 확인하세요"
-          description="바로페이 이용 전 궁금한 내용을 빠르게 확인해보세요."
+          description="딴딴페이 이용 전 궁금한 내용을 빠르게 확인해보세요."
         />
 
         {/* Mobile: single column, sequential order 1-20 */}
@@ -140,7 +140,7 @@ export default function FAQ() {
             찾으시는 답변이 없으신가요?
           </p>
           <p className="text-sm text-gray-text md:text-base">
-            궁금한 내용은 바로페이 상담을 통해 확인해보세요.
+            궁금한 내용은 딴딴페이 상담을 통해 확인해보세요.
           </p>
           <KakaoButton />
         </div>

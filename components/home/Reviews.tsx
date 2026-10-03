@@ -16,7 +16,7 @@ export default async function Reviews() {
         <SectionTitle
           eyebrow="이용후기"
           title="실제 고객님들의 후기"
-          description="바로페이를 이용하신 고객님들의 실제 후기를 확인해보세요."
+          description="딴딴페이를 이용하신 고객님들의 실제 후기를 확인해보세요."
         />
 
         <div className="flex w-full flex-col items-center gap-8">
