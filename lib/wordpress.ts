@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import type { BlogPost, PaginatedPosts, WordPressPost } from "@/types/wordpress";
 
 const WORDPRESS_URL = process.env.WORDPRESS_URL?.replace(/\/+$/, "");
@@ -11,6 +12,24 @@ export const isWordpressConfigured = Boolean(API_BASE);
 export const BLOG_PLACEHOLDER_IMAGE = "/images/blog-placeholder.svg";
 
 const REVALIDATE_SECONDS = 300;
+
+/** Upper bound for a single WordPress request. Without it a stalled
+ * connection (seen in production as `ConnectTimeoutError` / `read ETIMEDOUT`
+ * from the serverless region to the WordPress host) keeps the page's stream
+ * open for a minute or more with only the loading skeleton on screen. */
+const REQUEST_TIMEOUT_MS = 8000;
+/** One retry on network failure/timeout/5xx — these are transient on the
+ * WordPress host and usually succeed on the next attempt. */
+const MAX_ATTEMPTS = 2;
+
+/** Thrown when WordPress can't be reached, as opposed to it answering that a
+ * post doesn't exist — so a transient outage isn't rendered as a 404. */
+export class WordPressUnavailableError extends Error {
+  constructor(path: string) {
+    super(`WordPress request failed: ${path}`);
+    this.name = "WordPressUnavailableError";
+  }
+}
 
 function getAuthHeaders(): HeadersInit | undefined {
   if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) return undefined;
@@ -67,7 +86,8 @@ function decodeHtmlEntities(text: string): string {
  * JS parses as if it were UTC. Using `*_gmt` (already true UTC) instead keeps every downstream
  * consumer — JSON-LD, sitemap lastmod, RSS pubDate — anchored to the correct instant. */
 function toIsoUtc(gmtDateString: string): string {
-  return `${gmtDateString}Z`;
+  if (!gmtDateString) return "";
+  return /(?:Z|[+-]\d{2}:?\d{2})$/.test(gmtDateString) ? gmtDateString : `${gmtDateString}Z`;
 }
 
 /** Fields requested for list views (home reviews, /blog, related posts), which
@@ -145,6 +165,21 @@ function collapseEmptyLeadingWrappers(html: string): string {
 function dedupeLeadingFeaturedImage(html: string, featuredImageUrl: string | null): string {
   if (!html || !featuredImageUrl) return html;
 
+  // Purely cosmetic: if anything about this post's markup is unexpected, show
+  // the body untouched rather than let the page fail.
+  try {
+    return removeLeadingFeaturedImage(html, featuredImageUrl);
+  } catch (error) {
+    console.error(
+      "[wordpress] leading image dedupe failed:",
+      error instanceof Error ? error.message : error
+    );
+    return html;
+  }
+}
+
+function removeLeadingFeaturedImage(html: string, featuredImageUrl: string): string {
+
   const imgMatch = /<img\b[^>]*>/i.exec(html);
   if (!imgMatch) return html;
 
@@ -197,14 +232,15 @@ function dedupeLeadingFeaturedImage(html: string, featuredImageUrl: string | nul
 function mapPost(post: WordPressPost): BlogPost {
   const { width, height } = getFeaturedImageDimensions(post);
   const featuredImage = getFeaturedImage(post);
+  const published = post.date_gmt || post.date || "";
   return {
     id: post.id,
     slug: post.slug,
-    title: decodeHtmlEntities(post.title.rendered),
-    excerpt: decodeHtmlEntities(post.excerpt.rendered.replace(/<[^>]+>/g, "").trim()),
+    title: decodeHtmlEntities(post.title?.rendered ?? ""),
+    excerpt: decodeHtmlEntities((post.excerpt?.rendered ?? "").replace(/<[^>]+>/g, "").trim()),
     content: dedupeLeadingFeaturedImage(post.content?.rendered ?? "", featuredImage),
-    date: toIsoUtc(post.date_gmt),
-    modified: toIsoUtc(post.modified_gmt || post.date_gmt),
+    date: toIsoUtc(published),
+    modified: toIsoUtc(post.modified_gmt || published),
     featuredImage,
     featuredImageAlt: getFeaturedImageAlt(post),
     featuredImageWidth: width,
@@ -212,58 +248,86 @@ function mapPost(post: WordPressPost): BlogPost {
   };
 }
 
-async function wpFetch(path: string): Promise<Response | null> {
+interface WordPressResponse<T> {
+  data: T;
+  headers: Headers;
+}
+
+/** GETs a WordPress REST path and parses its JSON. Resolves to `null` — never
+ * throws, never hangs past the timeout — when WordPress is unconfigured,
+ * unreachable, slow, or answers with an error status. */
+async function wpFetch<T>(path: string): Promise<WordPressResponse<T> | null> {
   if (!API_BASE) {
     console.error("[wordpress] WORDPRESS_URL is not configured; returning empty results.");
     return null;
   }
 
-  try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      headers: getAuthHeaders(),
-      next: { revalidate: REVALIDATE_SECONDS },
-    });
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        headers: getAuthHeaders(),
+        next: { revalidate: REVALIDATE_SECONDS },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
 
-    if (!res.ok) {
+      if (res.ok) {
+        return { data: (await res.json()) as T, headers: res.headers };
+      }
+
       console.error(`[wordpress] request failed: ${res.status} ${res.statusText} (${path})`);
+      // A 4xx (e.g. page number past the last page) won't change on retry.
+      if (res.status < 500) return null;
+    } catch (error) {
+      console.error(
+        `[wordpress] request error for ${path} (attempt ${attempt}/${MAX_ATTEMPTS}):`,
+        error instanceof Error ? error.message : error
+      );
     }
-
-    return res;
-  } catch (error) {
-    console.error(
-      `[wordpress] request error for ${path}:`,
-      error instanceof Error ? error.message : error
-    );
-    return null;
   }
+
+  return null;
+}
+
+/** Maps a WordPress post list defensively: one malformed post is skipped
+ * instead of taking the whole list down with it. */
+function mapPosts(data: unknown): BlogPost[] {
+  if (!Array.isArray(data)) return [];
+  return (data as WordPressPost[]).flatMap((post) => {
+    try {
+      return [mapPost(post)];
+    } catch (error) {
+      console.error(
+        `[wordpress] skipping malformed post ${post?.id}:`,
+        error instanceof Error ? error.message : error
+      );
+      return [];
+    }
+  });
 }
 
 /** Latest N published posts, newest first. Used on the homepage. */
 export async function getLatestPosts(limit = 16): Promise<BlogPost[]> {
-  const res = await wpFetch(
+  const res = await wpFetch<WordPressPost[]>(
     `/posts?_embed&per_page=${limit}&orderby=date&order=desc&_fields=${LIST_FIELDS}`
   );
-  if (!res || !res.ok) return [];
-
-  const posts = (await res.json()) as WordPressPost[];
-  return posts.map(mapPost);
+  return res ? mapPosts(res.data) : [];
 }
 
 /** Paginated post list for /blog. */
 export async function getPosts(page = 1, perPage = 16): Promise<PaginatedPosts> {
-  const res = await wpFetch(
+  const res = await wpFetch<WordPressPost[]>(
     `/posts?_embed&per_page=${perPage}&page=${page}&orderby=date&order=desc&_fields=${LIST_FIELDS}`
   );
 
-  if (!res || !res.ok) {
+  if (!res) {
     return { posts: [], total: 0, totalPages: 0, page };
   }
 
-  const posts = (await res.json()) as WordPressPost[];
+  const posts = mapPosts(res.data);
   const total = Number(res.headers.get("X-WP-Total") ?? posts.length);
   const totalPages = Number(res.headers.get("X-WP-TotalPages") ?? 1);
 
-  return { posts: posts.map(mapPost), total, totalPages, page };
+  return { posts, total, totalPages, page };
 }
 
 /** All published posts, across pages. Used for sitemap/RSS generation. */
@@ -279,26 +343,28 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   return [...first.posts, ...rest.flatMap((page) => page.posts)];
 }
 
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  const res = await wpFetch(`/posts?slug=${encodeURIComponent(slug)}&_embed`);
-  if (!res || !res.ok) return null;
+/** Resolves to `null` only when WordPress confirms there is no such post;
+ * throws `WordPressUnavailableError` when it couldn't be asked. Wrapped in
+ * `cache()` so `generateMetadata` and the page share one request per render
+ * (fetch's built-in request memoization is skipped once a `signal` is set). */
+export const getPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
+  const path = `/posts?slug=${encodeURIComponent(slug)}&_embed`;
+  const res = await wpFetch<WordPressPost[]>(path);
+  if (!res) throw new WordPressUnavailableError(path);
 
-  const posts = (await res.json()) as WordPressPost[];
-  return posts[0] ? mapPost(posts[0]) : null;
-}
+  const post = Array.isArray(res.data) ? res.data[0] : undefined;
+  return post ? mapPost(post) : null;
+});
 
 /** Latest `limit + 1` posts, newest first, with no exclusion applied yet. Kept
  * separate from `getRelatedPosts` so the detail page can fetch this in
  * parallel with `getPostBySlug` (its result doesn't depend on the current
  * post's id) instead of waiting for the post to resolve first. */
 export async function getRecentPosts(limit = 4): Promise<BlogPost[]> {
-  const res = await wpFetch(
+  const res = await wpFetch<WordPressPost[]>(
     `/posts?_embed&per_page=${limit}&orderby=date&order=desc&_fields=${LIST_FIELDS}`
   );
-  if (!res || !res.ok) return [];
-
-  const posts = (await res.json()) as WordPressPost[];
-  return posts.map(mapPost);
+  return res ? mapPosts(res.data) : [];
 }
 
 /** Latest posts excluding the one currently being read (single-category site, so no category filter needed). */

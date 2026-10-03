@@ -1,12 +1,15 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Container from "@/components/common/Container";
 import BlogDetail from "@/components/blog/BlogDetail";
+import BlogCard from "@/components/blog/BlogCard";
 import { getPostBySlug, getRecentPosts } from "@/lib/wordpress";
 import { siteConfig } from "@/config/site";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
+import type { BlogPost } from "@/types/wordpress";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -25,7 +28,9 @@ interface BlogPostPageProps {
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  // A WordPress outage is reported by the page itself (see error.tsx); here it
+  // just falls back to generic metadata rather than failing the render twice.
+  const post = await getPostBySlug(slug).catch(() => null);
 
   if (!post) {
     return buildMetadata({
@@ -46,20 +51,43 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   });
 }
 
+/** Streams in behind its own Suspense boundary so the article never waits on
+ * (or fails with) this secondary WordPress request. */
+async function RelatedPosts({
+  posts,
+  currentId,
+}: {
+  posts: Promise<BlogPost[]>;
+  currentId: number;
+}) {
+  const relatedPosts = (await posts).filter((p) => p.id !== currentId).slice(0, 3);
+  if (relatedPosts.length === 0) return null;
+
+  return (
+    <div className="flex flex-col gap-6 border-t border-border pt-10">
+      <h2 className="text-lg font-bold text-text">함께 읽어보세요</h2>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {relatedPosts.map((related) => (
+          <BlogCard key={related.id} post={related} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
 
-  // Fetched in parallel: the related-posts query doesn't depend on the
-  // current post's id (filtering happens locally below), so there's no need
-  // to wait for `getPostBySlug` before starting it — this halves the
-  // WordPress round-trip latency on a cold cache.
-  const [post, recentPosts] = await Promise.all([getPostBySlug(slug), getRecentPosts(4)]);
+  // Started before awaiting the post so both WordPress requests run in
+  // parallel; it's only awaited inside <RelatedPosts>, and any failure
+  // degrades to "no related posts" instead of rejecting the page.
+  const recentPosts = getRecentPosts(4).catch((): BlogPost[] => []);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
-  const relatedPosts = recentPosts.filter((p) => p.id !== post.id).slice(0, 3);
   const postUrl = absoluteUrl(`/blog/${post.slug}`);
 
   const blogPostingJsonLd = {
@@ -92,7 +120,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <Header />
       <main>
         <Container>
-          <BlogDetail post={post} relatedPosts={relatedPosts} />
+          <BlogDetail
+            post={post}
+            related={
+              <Suspense fallback={null}>
+                <RelatedPosts posts={recentPosts} currentId={post.id} />
+              </Suspense>
+            }
+          />
         </Container>
       </main>
       <Footer />

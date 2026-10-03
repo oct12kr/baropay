@@ -15,19 +15,19 @@ export default function BlogPostLoading() {
       <main>
         <Container>
           <div className="mx-auto flex w-full max-w-[820px] flex-col gap-8 py-16 md:py-20">
-            <div className="h-4 w-48 animate-pulse rounded bg-section-1" />
+            <div className="h-4 w-48 animate-pulse rounded bg-border" />
 
             <div className="flex flex-col gap-3">
-              <div className="h-8 w-full animate-pulse rounded bg-section-1" />
-              <div className="h-8 w-2/3 animate-pulse rounded bg-section-1" />
-              <div className="h-4 w-24 animate-pulse rounded bg-section-1" />
+              <div className="h-8 w-full animate-pulse rounded bg-border" />
+              <div className="h-8 w-2/3 animate-pulse rounded bg-border" />
+              <div className="h-4 w-24 animate-pulse rounded bg-border" />
             </div>
 
-            <div className="aspect-video w-full animate-pulse rounded-[20px] bg-section-1" />
+            <div className="aspect-video w-full animate-pulse rounded-[20px] bg-border" />
 
             <div className="flex flex-col gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-4 w-full animate-pulse rounded bg-section-1" />
+                <div key={i} className="h-4 w-full animate-pulse rounded bg-border" />
               ))}
             </div>
           </div>

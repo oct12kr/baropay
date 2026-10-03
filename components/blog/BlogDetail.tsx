@@ -1,7 +1,7 @@
+import type { ReactNode } from "react";
 import Image from "next/image";
 import KakaoButton from "@/components/common/KakaoButton";
 import Breadcrumb from "@/components/common/Breadcrumb";
-import BlogCard from "@/components/blog/BlogCard";
 import { BLOG_PLACEHOLDER_IMAGE } from "@/lib/wordpress";
 import type { BlogPost } from "@/types/wordpress";
 
@@ -12,7 +12,9 @@ const FALLBACK_IMAGE_HEIGHT = 630;
 
 interface BlogDetailProps {
   post: BlogPost;
-  relatedPosts: BlogPost[];
+  /** Related-posts section, supplied by the page so it can stream in
+   * independently of the article. */
+  related?: ReactNode;
 }
 
 function formatDate(dateString: string) {
@@ -26,7 +28,7 @@ function formatDate(dateString: string) {
   });
 }
 
-export default function BlogDetail({ post, relatedPosts }: BlogDetailProps) {
+export default function BlogDetail({ post, related }: BlogDetailProps) {
   return (
     <article className="mx-auto flex w-full max-w-[820px] flex-col gap-8 py-16 md:py-20">
       <Breadcrumb
@@ -84,16 +86,7 @@ export default function BlogDetail({ post, relatedPosts }: BlogDetailProps) {
         <KakaoButton />
       </div>
 
-      {relatedPosts.length > 0 ? (
-        <div className="flex flex-col gap-6 border-t border-border pt-10">
-          <h2 className="text-lg font-bold text-text">함께 읽어보세요</h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {relatedPosts.map((related) => (
-              <BlogCard key={related.id} post={related} />
-            ))}
-          </div>
-        </div>
-      ) : null}
+      {related}
     </article>
   );
 }
