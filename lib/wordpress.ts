@@ -17,10 +17,45 @@ const REVALIDATE_SECONDS = 300;
  * connection (seen in production as `ConnectTimeoutError` / `read ETIMEDOUT`
  * from the serverless region to the WordPress host) keeps the page's stream
  * open for a minute or more with only the loading skeleton on screen. */
-const REQUEST_TIMEOUT_MS = 8000;
-/** One retry on network failure/timeout/5xx — these are transient on the
- * WordPress host and usually succeed on the next attempt. */
+const REQUEST_TIMEOUT_MS = 12000;
+/** One retry for a failure that came back quickly (connection reset, 5xx).
+ * A timeout is never retried: it means the host is saturated, and a second
+ * request would only add to its backlog and double the visitor's wait. */
 const MAX_ATTEMPTS = 2;
+/** The WordPress host handles one REST call in about a second, but measured
+ * just two concurrent calls taking 4-6s each, and a burst leaves PHP
+ * unresponsive for minutes. Calls from this server instance are therefore
+ * queued and sent one at a time rather than fired in parallel. */
+const MAX_CONCURRENT_REQUESTS = 1;
+
+/** After a timeout the host is assumed to still be saturated for this long.
+ * Requests in that window get a much shorter timeout: cached responses are
+ * still served instantly, while uncached ones fail fast instead of piling up
+ * in the queue behind each other and on the struggling host. */
+const BACKOFF_MS = 30_000;
+const BACKOFF_TIMEOUT_MS = 1500;
+
+let backoffUntil = 0;
+let activeRequests = 0;
+const waitingRequests: Array<() => void> = [];
+
+/** Runs `task` once a concurrency slot is free. The slot is handed directly
+ * to the next waiter on completion, so the limit is never exceeded. */
+async function withRequestSlot<T>(task: () => Promise<T>): Promise<T> {
+  if (activeRequests >= MAX_CONCURRENT_REQUESTS) {
+    await new Promise<void>((resolve) => waitingRequests.push(resolve));
+  } else {
+    activeRequests++;
+  }
+
+  try {
+    return await task();
+  } finally {
+    const next = waitingRequests.shift();
+    if (next) next();
+    else activeRequests--;
+  }
+}
 
 /** Thrown when WordPress can't be reached, as opposed to it answering that a
  * post doesn't exist — so a transient outage isn't rendered as a 404. */
@@ -262,26 +297,40 @@ async function wpFetch<T>(path: string): Promise<WordPressResponse<T> | null> {
     return null;
   }
 
+  const url = `${API_BASE}${path}`;
+
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      const res = await fetch(`${API_BASE}${path}`, {
-        headers: getAuthHeaders(),
-        next: { revalidate: REVALIDATE_SECONDS },
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      // The timeout starts inside the slot, so time spent queued behind other
+      // requests doesn't count against this one.
+      const result = await withRequestSlot(async () => {
+        const res = await fetch(url, {
+          headers: getAuthHeaders(),
+          next: { revalidate: REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(
+            Date.now() < backoffUntil ? BACKOFF_TIMEOUT_MS : REQUEST_TIMEOUT_MS
+          ),
+        });
+        return res.ok
+          ? { ok: true as const, data: (await res.json()) as T, headers: res.headers }
+          : { ok: false as const, status: res.status, statusText: res.statusText };
       });
 
-      if (res.ok) {
-        return { data: (await res.json()) as T, headers: res.headers };
-      }
+      if (result.ok) return { data: result.data, headers: result.headers };
 
-      console.error(`[wordpress] request failed: ${res.status} ${res.statusText} (${path})`);
+      console.error("[wordpress] request failed:", result.status, result.statusText, path);
       // A 4xx (e.g. page number past the last page) won't change on retry.
-      if (res.status < 500) return null;
+      if (result.status < 500) return null;
     } catch (error) {
       console.error(
-        `[wordpress] request error for ${path} (attempt ${attempt}/${MAX_ATTEMPTS}):`,
-        error instanceof Error ? error.message : error
+        `[wordpress] request error (attempt ${attempt}/${MAX_ATTEMPTS}):`,
+        error instanceof Error ? error.message : error,
+        path
       );
+      if (error instanceof Error && error.name === "TimeoutError") {
+        backoffUntil = Date.now() + BACKOFF_MS;
+        return null;
+      }
     }
   }
 
@@ -330,14 +379,35 @@ export async function getPosts(page = 1, perPage = 16): Promise<PaginatedPosts> 
   return { posts, total, totalPages, page };
 }
 
-/** All published posts, across pages. Used for sitemap/RSS generation. */
+/** Fields needed by the sitemap and RSS feed. No `_embed`: it makes WordPress
+ * resolve author/media/terms for every post, which is the expensive part of a
+ * list request and is unused by either consumer. */
+const INDEX_FIELDS = "id,slug,date_gmt,modified_gmt,title,excerpt";
+
+async function getIndexPage(page: number, perPage: number): Promise<PaginatedPosts> {
+  const res = await wpFetch<WordPressPost[]>(
+    `/posts?per_page=${perPage}&page=${page}&orderby=date&order=desc&_fields=${INDEX_FIELDS}`
+  );
+  if (!res) return { posts: [], total: 0, totalPages: 0, page };
+
+  const posts = mapPosts(res.data);
+  return {
+    posts,
+    total: Number(res.headers.get("X-WP-Total") ?? posts.length),
+    totalPages: Number(res.headers.get("X-WP-TotalPages") ?? 1),
+    page,
+  };
+}
+
+/** All published posts, across pages, without featured-image data. Used for
+ * sitemap/RSS generation. */
 export async function getAllPosts(): Promise<BlogPost[]> {
   const perPage = 100;
-  const first = await getPosts(1, perPage);
+  const first = await getIndexPage(1, perPage);
   if (first.totalPages <= 1) return first.posts;
 
   const rest = await Promise.all(
-    Array.from({ length: first.totalPages - 1 }, (_, i) => getPosts(i + 2, perPage))
+    Array.from({ length: first.totalPages - 1 }, (_, i) => getIndexPage(i + 2, perPage))
   );
 
   return [...first.posts, ...rest.flatMap((page) => page.posts)];

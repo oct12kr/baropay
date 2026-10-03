@@ -22,8 +22,12 @@ function formatDate(dateString: string) {
 
 export default function BlogCard({ post, badge }: BlogCardProps) {
   return (
+    // prefetch is off: a grid of cards would otherwise request every post at
+    // once as it scrolls into view, and that burst is exactly what the
+    // WordPress host can't absorb (see MAX_CONCURRENT_REQUESTS in lib/wordpress.ts).
     <Link
       href={`/blog/${post.slug}`}
+      prefetch={false}
       className="group flex flex-col overflow-hidden rounded-[20px] border border-border bg-white transition-all duration-250 hover:-translate-y-[3px] hover:shadow-[0_20px_40px_-16px_rgba(7,30,61,0.18)]"
     >
       <div className="relative aspect-video w-full overflow-hidden bg-light-blue">
